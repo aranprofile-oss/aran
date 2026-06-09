@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <title>노아란 — 업적 💛</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+  <style>
+    @font-face {
+      font-family: 'GmarketSans';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+      font-weight: 700; font-style: normal;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#ffd26c; --gold-light:#fff0c0; --gold-pale:#fffbf0;
+      --brown:#9b745a; --brown-dark:#6b4e3a;
+      --bg:#fdf8f0; --white:#fff;
+      --text:#1a1410; --text-muted:#7a6a5a;
+      --border:rgba(155,116,90,.15);
+    }
+    html,body{width:100%;min-height:100vh;background:var(--bg);font-family:'Pretendard',sans-serif;font-weight:300;color:var(--text)}
+    ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+
+    nav{position:sticky;top:0;z-index:50;background:rgba(253,248,240,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    .nav-inner{max-width:900px;margin:0 auto;display:flex;justify-content:center;overflow-x:auto}
+    .nav-tab{position:relative;padding:12px 20px;font-size:.875rem;font-weight:400;color:var(--text-muted);text-decoration:none;transition:color .25s;white-space:nowrap;font-family:'Pretendard',sans-serif}
+    .nav-tab::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--gold);border-radius:1px;transition:width .3s}
+    .nav-tab:hover{color:var(--brown-dark)} .nav-tab:hover::after{width:60%}
+    .nav-tab.active{color:var(--brown-dark)} .nav-tab.active::after{width:100%}
+
+    .page{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+
+    /* 페이지 타이틀 */
+    .page-title{font-family:'GmarketSans',sans-serif;font-size:32px;font-weight:700;margin-bottom:6px}
+    .page-sub{font-size:13px;color:var(--text-muted);margin-bottom:28px;font-weight:300}
+
+    /* 카테고리 필터 */
+    .cat-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+    .cat-btn{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid transparent;cursor:pointer;transition:all .2s;background:var(--white);color:var(--text-muted);border-color:var(--border);font-family:'Pretendard',sans-serif}
+    .cat-btn:hover{border-color:var(--brown);color:var(--brown-dark)}
+    .cat-btn.active{color:#fff;border-color:transparent}
+    .cat-btn.all.active{background:var(--brown-dark);color:#fff}
+
+    /* 연도 그룹 */
+    .year-group{margin-bottom:36px}
+    .year-label{font-family:'GmarketSans',sans-serif;font-size:18px;font-weight:700;color:var(--brown-dark);margin-bottom:16px;padding-bottom:8px;border-bottom:1.5px solid var(--border)}
+
+    /* 업적 아이템 */
+    .ach-item{display:flex;gap:16px;padding:10px 0;border-bottom:1px solid rgba(155,116,90,.07);transition:opacity .3s}
+    .ach-item:last-child{border-bottom:none}
+    .ach-item.hidden{display:none}
+    .ach-date{flex-shrink:0;width:48px;font-size:12px;color:var(--text-muted);font-weight:400;padding-top:2px}
+    .ach-content{font-size:14px;line-height:1.7;font-weight:300;position:relative;display:inline}
+    .ach-highlight{position:relative;display:inline}
+    .ach-highlight::before{content:'';position:absolute;bottom:0;left:-2px;right:-2px;height:60%;border-radius:2px;opacity:.45;z-index:0;transition:opacity .3s}
+    .ach-highlight span{position:relative;z-index:1}
+    .ach-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;margin-top:6px}
+
+    .empty{text-align:center;padding:48px 0;color:var(--text-muted);font-size:14px}
+
+    footer p{margin-bottom:4px}
+    footer{text-align:center;font-size:11px;color:var(--text-muted);letter-spacing:.08em;padding:24px 0 32px;border-top:1px solid var(--border)}
+
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .fade-in{animation:fadeInUp .4s ease both}
+
+    @media(max-width:640px){
+      .page-title{font-size:24px}
+      .ach-date{width:40px;font-size:11px}
+      .ach-content{font-size:13px}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-tab">프로필</a>
+    <a href="/schedule/" class="nav-tab">일정</a>
+    <a href="https://meloming.com/channel/aarann_/musicbook" target="_blank" class="nav-tab">노래책</a>
+    <a href="/achievement/" class="nav-tab active">업적</a>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="fade-in">
+    <div class="page-title">노아란의 업적 🏆</div>
+    <div class="page-sub">활동 기록 · 노래대회 · 이벤트 참여</div>
+  </div>
+
+  <div class="cat-filters fade-in" id="catFilters">
+    <button class="cat-btn all active" data-cat="all" onclick="filterCat('all',this)">전체</button>
+  </div>
+
+  <div id="achBody"></div>
+</main>
+
+<footer>
+  <p>© 2026 노아란 💛</p>
+  <p>Designed &amp; Developed by 아키텍트 크리에이티브 · profile@soop.info</p>
+</footer>
+
+<script src="../js/supabase-config.js"></script>
+<script>
+  const sb = initSupabase();
+  let categories = [];
+  let achievements = [];
+  let activeCat = 'all';
+
+  async function load() {
+    const [{ data: cats }, { data: achs }] = await Promise.all([
+      sb.from('achievement_categories').select('*').order('sort_order'),
+      sb.from('achievements').select('*, achievement_categories(name,color)').order('year').order('sort_order').order('date_label')
+    ]);
+    categories = cats || [];
+    achievements = achs || [];
+    renderFilters();
+    renderAchievements();
+  }
+
+  function renderFilters() {
+    const wrap = document.getElementById('catFilters');
+    const existing = wrap.querySelector('.all');
+    categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'cat-btn';
+      btn.dataset.cat = cat.id;
+      btn.textContent = cat.name;
+      btn.style.cssText = `border-color:${cat.color}20;color:${cat.color}`;
+      btn.onclick = () => filterCat(cat.id, btn);
+      wrap.appendChild(btn);
+    });
+  }
+
+  function filterCat(catId, el) {
+    activeCat = catId;
+    document.querySelectorAll('.cat-btn').forEach(b => {
+      b.classList.remove('active');
+      const c = categories.find(c => c.id === b.dataset.cat);
+      if (c) { b.style.cssText = `border-color:${c.color}20;color:${c.color}`; }
+      else { b.style.cssText = ''; }
+    });
+    el.classList.add('active');
+    if (catId !== 'all') {
+      const cat = categories.find(c => c.id === catId);
+      if (cat) el.style.cssText = `background:${cat.color};color:#fff;border-color:${cat.color}`;
+    }
+    renderAchievements();
+  }
+
+  function renderAchievements() {
+    const body = document.getElementById('achBody');
+    const filtered = activeCat === 'all' ? achievements : achievements.filter(a => a.category_id === activeCat);
+
+    if (!filtered.length) {
+      body.innerHTML = '<div class="empty">등록된 업적이 없습니다</div>';
+      return;
+    }
+
+    // 연도별 그룹
+    const byYear = {};
+    filtered.forEach(a => {
+      const y = a.year || '기타';
+      if (!byYear[y]) byYear[y] = [];
+      byYear[y].push(a);
+    });
+
+    body.innerHTML = Object.keys(byYear).sort((a,b) => b-a).map(year => {
+      const items = byYear[year].map(a => {
+        const cat = a.achievement_categories;
+        const color = cat?.color || '#E6B84A';
+        const hex = color.replace('#','');
+        const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+        const hasHighlight = activeCat !== 'all' || a.category_id;
+        const contentHtml = hasHighlight
+          ? `<span class="ach-highlight" style="--hc:${r},${g},${b}"><span>${a.content}</span></span>`
+          : a.content;
+        return `<div class="ach-item" data-cat="${a.category_id||''}">
+          <div class="ach-dot" style="background:${color}"></div>
+          <div class="ach-date">${a.date_label||''}</div>
+          <div class="ach-content">${contentHtml}</div>
+        </div>`;
+      }).join('');
+      return `<div class="year-group fade-in"><div class="year-label">${year}년</div>${items}</div>`;
+    }).join('');
+
+    // 하이라이트 before 색상 적용
+    document.querySelectorAll('.ach-highlight').forEach(el => {
+      const style = el.getAttribute('style');
+      const match = style && style.match(/--hc:([\d,]+)/);
+      if (match) {
+        const [r,g,b] = match[1].split(',');
+        el.style.setProperty('--hc', match[1]);
+        // before pseudo는 CSS var로 처리
+      }
+    });
+
+    // 카테고리 필터 시 해당 색상 하이라이트만 강조
+    if (activeCat !== 'all') {
+      const cat = categories.find(c => c.id === activeCat);
+      if (cat) {
+        const hex = cat.color.replace('#','');
+        const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+        document.querySelectorAll('.ach-highlight::before').forEach(el => {});
+        // inline style로 처리
+        document.querySelectorAll('.ach-highlight').forEach(el => {
+          el.style.background = `linear-gradient(transparent 40%, rgba(${r},${g},${b},.35) 40%, rgba(${r},${g},${b},.35) 88%, transparent 88%)`;
+        });
+      }
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
