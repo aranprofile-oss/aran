@@ -98,7 +98,8 @@
     .vod-thumb{position:relative;border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .25s;background:#000;aspect-ratio:16/9}
     .vod-thumb:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(155,116,90,.2)}
     .vod-thumb.active{border-color:var(--gold);box-shadow:0 4px 16px rgba(255,210,108,.4)}
-    .vod-thumb-bg{width:100%;height:100%;background:linear-gradient(135deg,var(--gold-pale),var(--gold-light));display:flex;align-items:center;justify-content:center}
+    .vod-thumb-bg{width:100%;height:100%;background:linear-gradient(135deg,var(--gold-pale),var(--gold-light));display:flex;align-items:center;justify-content:center;font-size:24px}
+    .vod-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
     .vod-thumb-title{position:absolute;bottom:0;left:0;right:0;padding:8px 10px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:.6875rem;font-weight:600}
     .vod-play-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;background:rgba(255,210,108,.85);display:flex;align-items:center;justify-content:center;color:var(--brown-dark);font-size:12px;opacity:0;transition:opacity .2s}
     .vod-thumb:hover .vod-play-icon{opacity:1}
@@ -128,7 +129,7 @@
   <div class="nav-inner">
     <a href="/" class="nav-tab active">프로필</a>
     <a href="/schedule/" class="nav-tab">일정</a>
-    <a href="/song/" class="nav-tab">노래책</a>
+    <a href="https://meloming.com/channel/aarann_/musicbook" target="_blank" class="nav-tab">노래책</a>
   </div>
 </nav>
 
@@ -236,6 +237,11 @@
     renderVod();
   }
 
+  function thumbHtml(v) {
+    if (v.thumb_url) return `<img src="${v.thumb_url}" alt="${v.title}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'vod-thumb-bg',textContent:'▶'}))">`;
+    return `<div class="vod-thumb-bg">▶</div>`;
+  }
+
   function renderVod() {
     const playerEl = document.getElementById('vodPlayer');
     const listEl = document.getElementById('vodList');
@@ -252,7 +258,7 @@
 
     listEl.innerHTML = vodData.map((v, i) => `
       <div class="vod-thumb${i===0?' active':''}" onclick="switchVod(${i})" data-idx="${i}">
-        <div class="vod-thumb-bg">▶</div>
+        ${thumbHtml(v)}
         <div class="vod-thumb-title">${v.title}</div>
         <div class="vod-play-icon">▶</div>
       </div>

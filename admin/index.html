@@ -200,7 +200,8 @@
             </div>
           </div>
           <div class="mb-2 text-xs text-sub">
-            💡 SOOP VOD URL에서 숫자 부분만 입력: <code class="bg-thead px-1 rounded">sooplive.com/aranroh/v/<b>194780409</b></code>
+            💡 SOOP VOD URL에서 숫자 부분만 입력: <code class="bg-thead px-1 rounded">sooplive.com/aranroh/v/<b>194780409</b></code><br>
+            VOD ID 입력 후 미리보기 클릭 시 썸네일 자동 로드
           </div>
           <div id="vodPreview" class="hidden mb-4">
             <div class="aspect-video rounded-xl overflow-hidden bg-black w-full max-w-xs">
@@ -319,6 +320,11 @@
         <div>
           <label class="block text-sm text-txt mb-1">순서</label>
           <input type="number" id="editVodOrder" min="0"
+            class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+        </div>
+        <div>
+          <label class="block text-sm text-txt mb-1">썸네일 URL <span class="text-sub text-xs">(비우면 기본 배경)</span></label>
+          <input type="text" id="editVodThumbUrl" placeholder="https://videoimg.sooplive.com/..."
             class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
         </div>
         <div class="flex gap-2 pt-2">
@@ -500,26 +506,43 @@
       `).join('');
     }
 
-    function previewVod() {
+    let _lastThumbUrl = '';
+
+    async function previewVod() {
       const id = document.getElementById('vodId').value.trim();
       if (!id) return;
       const wrap = document.getElementById('vodPreview');
       const frame = document.getElementById('vodPreviewFrame');
       frame.src = `https://vod.sooplive.com/player/${id}/embed?showChat=false&autoPlay=false&mutePlay=false`;
       wrap.classList.remove('hidden');
+      // thumb 자동 fetch
+      _lastThumbUrl = '';
+      try {
+        const res = await fetch(`https://api-channel.sooplive.com/v1.1/channel/aranroh/vod/clip?orderBy=regDate&perPage=60&page=1`);
+        const json = await res.json();
+        const list = json.data || json.list || json.vods || [];
+        const found = list.find(v => String(v.titleNo) === String(id) || String(v.stationNo) === String(id));
+        if (found && found.ucc && found.ucc.thumb) {
+          _lastThumbUrl = found.ucc.thumb;
+          showMsg('vodMsg', '✅ 썸네일 자동 감지됨', 'ok');
+        }
+      } catch(e) { /* 썸네일 없어도 무방 */ }
     }
 
     async function handleAddVod() {
       const title = document.getElementById('vodTitle').value.trim();
       const vodId = document.getElementById('vodId').value.trim();
       if (!title || !vodId) { showMsg('vodMsg', '제목과 VOD ID를 입력해주세요', 'error'); return; }
-      const { error } = await sb.from('vod_clips').insert({ title, vod_id: vodId });
+      // thumb URL: 미리보기에서 자동감지된 것 or 직접 구성
+      const thumbUrl = _lastThumbUrl || null;
+      const { error } = await sb.from('vod_clips').insert({ title, vod_id: vodId, thumb_url: thumbUrl });
       if (error) { showMsg('vodMsg', '오류: ' + error.message, 'error'); return; }
       showMsg('vodMsg', '✅ 추가됐어요', 'ok');
       document.getElementById('vodTitle').value = '';
       document.getElementById('vodId').value = '';
       document.getElementById('vodPreview').classList.add('hidden');
       document.getElementById('vodPreviewFrame').src = '';
+      _lastThumbUrl = '';
       loadVodAdmin();
     }
 
@@ -533,19 +556,24 @@
     async function openEditVodModal(id) {
       const { data } = await sb.from('vod_clips').select('*').eq('id', id).single();
       editVodData = data;
-      document.getElementById('editVodId').value    = data.id;
-      document.getElementById('editVodTitle').value = data.title;
-      document.getElementById('editVodVodId').value = data.vod_id;
-      document.getElementById('editVodOrder').value = data.sort_order || 0;
+      document.getElementById('editVodId').value       = data.id;
+      document.getElementById('editVodTitle').value    = data.title;
+      document.getElementById('editVodVodId').value    = data.vod_id;
+      document.getElementById('editVodOrder').value    = data.sort_order || 0;
+      document.getElementById('editVodThumbUrl').value = data.thumb_url || '';
       document.getElementById('editVodModal').classList.remove('hidden');
     }
 
     async function saveEditVod() {
       const id = document.getElementById('editVodId').value;
+      const newVodId = document.getElementById('editVodVodId').value.trim();
+      // VOD ID 변경 시 thumb 재fetch
+      let thumbUrl = document.getElementById('editVodThumbUrl') ? document.getElementById('editVodThumbUrl').value : null;
       await sb.from('vod_clips').update({
         title:      document.getElementById('editVodTitle').value.trim(),
-        vod_id:     document.getElementById('editVodVodId').value.trim(),
+        vod_id:     newVodId,
         sort_order: parseInt(document.getElementById('editVodOrder').value) || 0,
+        ...(thumbUrl !== null ? { thumb_url: thumbUrl || null } : {}),
       }).eq('id', id);
       closeEditVodModal();
       loadVodAdmin();

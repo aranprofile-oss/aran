@@ -25,9 +25,13 @@ CREATE TABLE IF NOT EXISTS public.vod_clips (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title      TEXT NOT NULL,
   vod_id     TEXT NOT NULL,   -- SOOP VOD ID (embed URL용)
+  thumb_url  TEXT DEFAULT NULL,
   sort_order INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE public.vod_clips ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public read vod_clips"  ON public.vod_clips FOR SELECT USING (true);
 CREATE POLICY "auth all vod_clips"     ON public.vod_clips FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- 기존 테이블에 thumb_url 컬럼 추가 (이미 생성된 경우)
+ALTER TABLE public.vod_clips ADD COLUMN IF NOT EXISTS thumb_url TEXT DEFAULT NULL;
