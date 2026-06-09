@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <title>🔐 노아란 Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#FDF8F0', card: '#FFFFFF',
+            point: '#F5DFA0', accent: '#c49a72', accent2: '#9b745a',
+            txt: '#1a1410', sub: '#7a6a5a', thead: '#FFF0C0',
+          },
+          fontFamily: { sans: ['Noto Sans KR', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    .tab-btn { transition: all 0.2s; }
+    .tab-btn.active { color: #c49a72; border-bottom: 2px solid #c49a72; font-weight: 600; }
+    .tab-btn:not(.active) { color: #7a6a5a; border-bottom: 2px solid transparent; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .sch-table { width: 100%; border-collapse: collapse; }
+    .sch-table th { background: #FFF0C0; color: #1a1410; font-size: 0.75rem; font-weight: 600; padding: 10px 12px; text-align: left; }
+    .sch-table th:first-child { border-radius: 10px 0 0 10px; }
+    .sch-table th:last-child { border-radius: 0 10px 10px 0; }
+    .sch-table td { padding: 10px 12px; font-size: 0.8125rem; border-bottom: 1px solid rgba(155,116,90,.08); color: #1a1410; }
+    .sch-table tr:last-child td { border-bottom: none; }
+    .vod-table { width: 100%; border-collapse: collapse; }
+    .vod-table th { background: #FFF0C0; color: #1a1410; font-size: 0.75rem; font-weight: 600; padding: 10px 12px; text-align: left; }
+    .vod-table th:first-child { border-radius: 10px 0 0 10px; }
+    .vod-table th:last-child { border-radius: 0 10px 10px 0; }
+    .vod-table td { padding: 10px 12px; font-size: 0.8125rem; border-bottom: 1px solid rgba(155,116,90,.08); color: #1a1410; }
+    .vod-table tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body class="bg-bg min-h-screen font-sans">
+
+  <!-- ==================== LOGIN ==================== -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm border border-point/30">
+      <div class="text-center mb-6">
+        <div class="text-3xl mb-2">🪨</div>
+        <h1 class="text-2xl font-bold text-txt mb-1">Admin</h1>
+        <p class="text-sub text-sm">노아란 관리자 페이지</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-txt mb-1">이메일</label>
+          <input type="email" id="loginEmail"
+            class="w-full px-4 py-2.5 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+        </div>
+        <div>
+          <label class="block text-sm text-txt mb-1">비밀번호</label>
+          <input type="password" id="loginPassword"
+            class="w-full px-4 py-2.5 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm"
+            onkeydown="if(event.key==='Enter')handleLogin()">
+        </div>
+        <button onclick="handleLogin()"
+          class="w-full py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent2 transition-colors text-sm">
+          로그인
+        </button>
+      </div>
+      <p id="loginError" class="text-red-400 text-xs text-center mt-3 hidden"></p>
+    </div>
+  </div>
+
+  <!-- ==================== ADMIN ==================== -->
+  <div id="adminScreen" class="hidden">
+
+    <!-- Top Bar -->
+    <header class="sticky top-0 z-50 bg-bg/95 backdrop-filter backdrop-blur border-b border-point/30">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <a href="../" class="text-sub hover:text-accent transition-colors text-sm">←</a>
+          <h1 class="text-lg font-bold text-txt">🔐 노아란 Admin</h1>
+        </div>
+        <button onclick="handleLogout()"
+          class="px-3 py-1.5 rounded-lg border border-sub/30 text-sub text-xs hover:bg-red-50 hover:text-red-400 hover:border-red-200 transition-colors">
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="max-w-5xl mx-auto px-4 pt-4">
+      <div class="flex gap-6 border-b border-point/30 overflow-x-auto">
+        <button class="tab-btn active pb-3 text-sm whitespace-nowrap" data-tab="schedule">📅 일정 관리</button>
+        <button class="tab-btn pb-3 text-sm whitespace-nowrap" data-tab="vod">🎬 커버 영상</button>
+      </div>
+    </div>
+
+    <main class="max-w-5xl mx-auto px-4 py-6">
+
+      <!-- ========== 일정 관리 ========== -->
+      <div id="tab-schedule" class="tab-content active">
+
+        <div class="bg-white rounded-2xl shadow-sm border border-point/20 p-6 mb-6">
+          <h2 class="font-semibold text-txt mb-4">➕ 일정 추가</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm text-txt mb-1">날짜 <span class="text-red-400">*</span></label>
+              <input type="date" id="schDate"
+                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+            </div>
+            <div>
+              <label class="block text-sm text-txt mb-1">상태</label>
+              <select id="schStatus"
+                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+                <option value="normal">🟢 일반 방송</option>
+                <option value="special">🟣 이벤트</option>
+                <option value="holiday">⚫ 휴방</option>
+                <option value="anniversary">🟠 기념일</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm text-txt mb-1">1부 제목</label>
+              <input type="text" id="schSlot1Title" placeholder="예: 스팀 게임방송"
+                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+            </div>
+            <div>
+              <label class="block text-sm text-txt mb-1">1부 시간</label>
+              <input type="time" id="schSlot1Time" value="22:00"
+                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm text-txt mb-1">2부 제목 <span class="text-sub text-xs">(선택)</span></label>
+              <input type="text" id="schSlot2Title" placeholder="예: 노래방송"
+                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+            </div>
+            <div>
+              <label class="block text-sm text-txt mb-1">2부 시간</label>
+              <input type="time" id="schSlot2Time"
+                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm text-txt mb-1">메모</label>
+            <input type="text" id="schNote" placeholder="간단한 메모"
+              class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+          </div>
+          <button onclick="handleAddSchedule()"
+            class="px-6 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent2 transition-colors">
+            ➕ 일정 추가
+          </button>
+          <p id="schMsg" class="text-xs mt-2 hidden"></p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-point/20 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold text-txt">📋 등록된 일정</h2>
+            <div class="flex gap-2">
+              <button onclick="changeSchMonth(-1)" class="w-8 h-8 rounded-full border border-point/40 flex items-center justify-center text-accent text-sm hover:bg-thead transition">‹</button>
+              <span id="schMonthLabel" class="text-sm font-semibold text-txt self-center min-w-[80px] text-center"></span>
+              <button onclick="changeSchMonth(1)" class="w-8 h-8 rounded-full border border-point/40 flex items-center justify-center text-accent text-sm hover:bg-thead transition">›</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="sch-table">
+              <thead>
+                <tr>
+                  <th>날짜</th><th>상태</th><th>1부</th><th>2부</th><th>메모</th><th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="scheduleTableBody">
+                <tr><td colspan="6" class="text-center py-8 text-sub text-sm">불러오는 중...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== VOD 영상 관리 ========== -->
+      <div id="tab-vod" class="tab-content">
+
+        <div class="bg-white rounded-2xl shadow-sm border border-point/20 p-6 mb-6">
+          <h2 class="font-semibold text-txt mb-4">➕ 영상 추가</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm text-txt mb-1">영상 제목 <span class="text-red-400">*</span></label>
+              <input type="text" id="vodTitle" placeholder="예: 시작의 아이 - 마크툽"
+                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+            </div>
+            <div>
+              <label class="block text-sm text-txt mb-1">SOOP VOD ID <span class="text-red-400">*</span></label>
+              <input type="text" id="vodId" placeholder="예: 194780409"
+                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+            </div>
+          </div>
+          <div class="mb-2 text-xs text-sub">
+            💡 SOOP VOD URL에서 숫자 부분만 입력: <code class="bg-thead px-1 rounded">sooplive.com/aranroh/v/<b>194780409</b></code>
+          </div>
+          <div id="vodPreview" class="hidden mb-4">
+            <div class="aspect-video rounded-xl overflow-hidden bg-black w-full max-w-xs">
+              <iframe id="vodPreviewFrame" src="" class="w-full h-full border-none" allowfullscreen></iframe>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="previewVod()"
+              class="px-4 py-2 rounded-xl border border-accent text-accent text-sm font-medium hover:bg-thead transition-colors">
+              👁 미리보기
+            </button>
+            <button onclick="handleAddVod()"
+              class="px-6 py-2 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent2 transition-colors">
+              ➕ 추가
+            </button>
+          </div>
+          <p id="vodMsg" class="text-xs mt-2 hidden"></p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-point/20 p-6">
+          <h2 class="font-semibold text-txt mb-4">🎬 등록된 영상</h2>
+          <div class="overflow-x-auto">
+            <table class="vod-table">
+              <thead>
+                <tr><th>#</th><th>제목</th><th>VOD ID</th><th>등록일</th><th>관리</th></tr>
+              </thead>
+              <tbody id="vodTableBody">
+                <tr><td colspan="5" class="text-center py-8 text-sub text-sm">불러오는 중...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- 일정 수정 모달 -->
+  <div id="editSchModal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md border border-point/20">
+      <h3 class="font-semibold text-txt mb-4">✏️ 일정 수정</h3>
+      <div class="space-y-3">
+        <input type="hidden" id="editSchId">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm text-txt mb-1">날짜</label>
+            <input type="date" id="editSchDate"
+              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+          </div>
+          <div>
+            <label class="block text-sm text-txt mb-1">상태</label>
+            <select id="editSchStatus"
+              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+              <option value="normal">🟢 일반</option>
+              <option value="special">🟣 이벤트</option>
+              <option value="holiday">⚫ 휴방</option>
+              <option value="anniversary">🟠 기념일</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm text-txt mb-1">1부 제목</label>
+            <input type="text" id="editSlot1Title"
+              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+          </div>
+          <div>
+            <label class="block text-sm text-txt mb-1">1부 시간</label>
+            <input type="time" id="editSlot1Time"
+              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm text-txt mb-1">2부 제목</label>
+            <input type="text" id="editSlot2Title"
+              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+          </div>
+          <div>
+            <label class="block text-sm text-txt mb-1">2부 시간</label>
+            <input type="time" id="editSlot2Time"
+              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm text-txt mb-1">메모</label>
+          <input type="text" id="editSchNote"
+            class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="saveEditSchedule()"
+            class="flex-1 py-2 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent2 transition-colors">저장</button>
+          <button onclick="closeEditSchModal()"
+            class="flex-1 py-2 rounded-xl border border-sub/30 text-sub text-sm hover:bg-gray-50 transition-colors">취소</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOD 수정 모달 -->
+  <div id="editVodModal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm border border-point/20">
+      <h3 class="font-semibold text-txt mb-4">✏️ 영상 수정</h3>
+      <div class="space-y-3">
+        <input type="hidden" id="editVodId">
+        <div>
+          <label class="block text-sm text-txt mb-1">제목</label>
+          <input type="text" id="editVodTitle"
+            class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+        </div>
+        <div>
+          <label class="block text-sm text-txt mb-1">VOD ID</label>
+          <input type="text" id="editVodVodId"
+            class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+        </div>
+        <div>
+          <label class="block text-sm text-txt mb-1">순서</label>
+          <input type="number" id="editVodOrder" min="0"
+            class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="saveEditVod()"
+            class="flex-1 py-2 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent2 transition-colors">저장</button>
+          <button onclick="closeEditVodModal()"
+            class="flex-1 py-2 rounded-xl border border-sub/30 text-sub text-sm hover:bg-gray-50 transition-colors">취소</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/supabase-config.js"></script>
+  <script>
+    let sb;
+    let schYear, schMonth;
+
+    // ── AUTH ──
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pw    = document.getElementById('loginPassword').value;
+      const errEl = document.getElementById('loginError');
+      errEl.classList.add('hidden');
+      sb = initSupabase();
+      const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+      if (error) {
+        errEl.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+        errEl.classList.remove('hidden');
+      } else {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('adminScreen').classList.remove('hidden');
+        const n = new Date();
+        schYear = n.getFullYear(); schMonth = n.getMonth();
+        loadScheduleAdmin();
+        loadVodAdmin();
+      }
+    }
+
+    async function handleLogout() {
+      await sb.auth.signOut();
+      location.reload();
+    }
+
+    // ── TABS ──
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        });
+      });
+    });
+
+    // ── SCHEDULE ADMIN ──
+    const STATUS_LABEL = { normal:'🟢 일반', special:'🟣 이벤트', holiday:'⚫ 휴방', anniversary:'🟠 기념일' };
+
+    function updateSchMonthLabel() {
+      document.getElementById('schMonthLabel').textContent = `${schYear}년 ${schMonth+1}월`;
+    }
+
+    function changeSchMonth(d) {
+      schMonth += d;
+      if (schMonth < 0) { schMonth = 11; schYear--; }
+      if (schMonth > 11) { schMonth = 0; schYear++; }
+      loadScheduleAdmin();
+    }
+
+    async function loadScheduleAdmin() {
+      updateSchMonthLabel();
+      const s = `${schYear}-${String(schMonth+1).padStart(2,'0')}-01`;
+      const last = new Date(schYear, schMonth+1, 0).getDate();
+      const e = `${schYear}-${String(schMonth+1).padStart(2,'0')}-${String(last).padStart(2,'0')}`;
+      const { data, error } = await sb.from('schedules').select('*').gte('date', s).lte('date', e).order('date');
+      const tbody = document.getElementById('scheduleTableBody');
+      if (error || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-sub text-sm">등록된 일정이 없습니다</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(r => `
+        <tr>
+          <td class="font-medium">${r.date}</td>
+          <td>${STATUS_LABEL[r.status] || r.status}</td>
+          <td>${r.slot1_title ? `${r.slot1_title} <span class="text-sub text-xs">${r.slot1_time||''}</span>` : '<span class="text-sub">-</span>'}</td>
+          <td>${r.slot2_title ? `${r.slot2_title} <span class="text-sub text-xs">${r.slot2_time||''}</span>` : '<span class="text-sub">-</span>'}</td>
+          <td class="text-sub">${r.note || '-'}</td>
+          <td>
+            <div class="flex gap-2">
+              <button onclick="openEditSchModal('${r.id}')" class="text-xs px-3 py-1 rounded-lg bg-thead text-accent hover:bg-point transition-colors">수정</button>
+              <button onclick="deleteSchedule('${r.id}')" class="text-xs px-3 py-1 rounded-lg text-red-400 hover:bg-red-50 border border-red-100 transition-colors">삭제</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function handleAddSchedule() {
+      const date = document.getElementById('schDate').value;
+      if (!date) { showMsg('schMsg', '날짜를 입력해주세요', 'error'); return; }
+      const payload = {
+        date,
+        status: document.getElementById('schStatus').value,
+        slot1_title: document.getElementById('schSlot1Title').value.trim() || null,
+        slot1_time:  document.getElementById('schSlot1Time').value || null,
+        slot2_title: document.getElementById('schSlot2Title').value.trim() || null,
+        slot2_time:  document.getElementById('schSlot2Time').value || null,
+        note:        document.getElementById('schNote').value.trim() || null,
+      };
+      const { error } = await sb.from('schedules').upsert(payload, { onConflict: 'date' });
+      if (error) { showMsg('schMsg', '오류: ' + error.message, 'error'); return; }
+      showMsg('schMsg', '✅ 저장됐어요', 'ok');
+      ['schSlot1Title','schSlot2Title','schNote'].forEach(id => document.getElementById(id).value = '');
+      loadScheduleAdmin();
+    }
+
+    async function deleteSchedule(id) {
+      if (!confirm('삭제할까요?')) return;
+      await sb.from('schedules').delete().eq('id', id);
+      loadScheduleAdmin();
+    }
+
+    let editSchData = {};
+    async function openEditSchModal(id) {
+      const { data } = await sb.from('schedules').select('*').eq('id', id).single();
+      editSchData = data;
+      document.getElementById('editSchId').value        = data.id;
+      document.getElementById('editSchDate').value      = data.date;
+      document.getElementById('editSchStatus').value    = data.status;
+      document.getElementById('editSlot1Title').value   = data.slot1_title || '';
+      document.getElementById('editSlot1Time').value    = data.slot1_time || '';
+      document.getElementById('editSlot2Title').value   = data.slot2_title || '';
+      document.getElementById('editSlot2Time').value    = data.slot2_time || '';
+      document.getElementById('editSchNote').value      = data.note || '';
+      document.getElementById('editSchModal').classList.remove('hidden');
+    }
+
+    async function saveEditSchedule() {
+      const id = document.getElementById('editSchId').value;
+      const payload = {
+        date:        document.getElementById('editSchDate').value,
+        status:      document.getElementById('editSchStatus').value,
+        slot1_title: document.getElementById('editSlot1Title').value.trim() || null,
+        slot1_time:  document.getElementById('editSlot1Time').value || null,
+        slot2_title: document.getElementById('editSlot2Title').value.trim() || null,
+        slot2_time:  document.getElementById('editSlot2Time').value || null,
+        note:        document.getElementById('editSchNote').value.trim() || null,
+      };
+      await sb.from('schedules').update(payload).eq('id', id);
+      closeEditSchModal();
+      loadScheduleAdmin();
+    }
+
+    function closeEditSchModal() {
+      document.getElementById('editSchModal').classList.add('hidden');
+    }
+
+    // ── VOD ADMIN ──
+    async function loadVodAdmin() {
+      const { data } = await sb.from('vod_clips').select('*').order('sort_order').order('created_at');
+      const tbody = document.getElementById('vodTableBody');
+      if (!data || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-sub text-sm">등록된 영상이 없습니다</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map((v, i) => `
+        <tr>
+          <td class="text-sub">${i+1}</td>
+          <td class="font-medium">${v.title}</td>
+          <td><code class="bg-thead px-2 py-0.5 rounded text-xs">${v.vod_id}</code></td>
+          <td class="text-sub text-xs">${v.created_at ? v.created_at.slice(0,10) : ''}</td>
+          <td>
+            <div class="flex gap-2">
+              <button onclick="openEditVodModal('${v.id}')" class="text-xs px-3 py-1 rounded-lg bg-thead text-accent hover:bg-point transition-colors">수정</button>
+              <button onclick="deleteVod('${v.id}')" class="text-xs px-3 py-1 rounded-lg text-red-400 hover:bg-red-50 border border-red-100 transition-colors">삭제</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function previewVod() {
+      const id = document.getElementById('vodId').value.trim();
+      if (!id) return;
+      const wrap = document.getElementById('vodPreview');
+      const frame = document.getElementById('vodPreviewFrame');
+      frame.src = `https://vod.sooplive.com/player/${id}/embed?showChat=false&autoPlay=false&mutePlay=false`;
+      wrap.classList.remove('hidden');
+    }
+
+    async function handleAddVod() {
+      const title = document.getElementById('vodTitle').value.trim();
+      const vodId = document.getElementById('vodId').value.trim();
+      if (!title || !vodId) { showMsg('vodMsg', '제목과 VOD ID를 입력해주세요', 'error'); return; }
+      const { error } = await sb.from('vod_clips').insert({ title, vod_id: vodId });
+      if (error) { showMsg('vodMsg', '오류: ' + error.message, 'error'); return; }
+      showMsg('vodMsg', '✅ 추가됐어요', 'ok');
+      document.getElementById('vodTitle').value = '';
+      document.getElementById('vodId').value = '';
+      document.getElementById('vodPreview').classList.add('hidden');
+      document.getElementById('vodPreviewFrame').src = '';
+      loadVodAdmin();
+    }
+
+    async function deleteVod(id) {
+      if (!confirm('삭제할까요?')) return;
+      await sb.from('vod_clips').delete().eq('id', id);
+      loadVodAdmin();
+    }
+
+    let editVodData = {};
+    async function openEditVodModal(id) {
+      const { data } = await sb.from('vod_clips').select('*').eq('id', id).single();
+      editVodData = data;
+      document.getElementById('editVodId').value    = data.id;
+      document.getElementById('editVodTitle').value = data.title;
+      document.getElementById('editVodVodId').value = data.vod_id;
+      document.getElementById('editVodOrder').value = data.sort_order || 0;
+      document.getElementById('editVodModal').classList.remove('hidden');
+    }
+
+    async function saveEditVod() {
+      const id = document.getElementById('editVodId').value;
+      await sb.from('vod_clips').update({
+        title:      document.getElementById('editVodTitle').value.trim(),
+        vod_id:     document.getElementById('editVodVodId').value.trim(),
+        sort_order: parseInt(document.getElementById('editVodOrder').value) || 0,
+      }).eq('id', id);
+      closeEditVodModal();
+      loadVodAdmin();
+    }
+
+    function closeEditVodModal() {
+      document.getElementById('editVodModal').classList.add('hidden');
+    }
+
+    // ── UTIL ──
+    function showMsg(id, text, type) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'text-xs mt-2 ' + (type === 'ok' ? 'text-green-600' : 'text-red-400');
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 3000);
+    }
+  </script>
+</body>
+</html>

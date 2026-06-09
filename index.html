@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>노아란</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --gold:#ffd26c; --gold-light:#fff0c0; --gold-pale:#fffbf0;
+      --brown:#9b745a; --brown-dark:#6b4e3a;
+      --soop:#00b4d8; --soop-dark:#0096b7;
+      --bg:#fdf8f0; --white:#fff;
+      --text:#1a1410; --text-muted:#7a6a5a;
+      --border:rgba(155,116,90,.15);
+    }
+    html,body{width:100%;min-height:100vh;background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--text)}
+    ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+
+    /* NAV */
+    nav{position:sticky;top:0;z-index:50;background:rgba(253,248,240,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    .nav-inner{max-width:900px;margin:0 auto;display:flex;justify-content:center}
+    .nav-tab{position:relative;padding:12px 24px;font-size:.875rem;font-weight:500;color:var(--text-muted);text-decoration:none;transition:color .25s}
+    .nav-tab::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--gold);border-radius:1px;transition:width .3s}
+    .nav-tab:hover{color:var(--brown-dark)} .nav-tab:hover::after{width:60%}
+    .nav-tab.active{color:var(--brown-dark)} .nav-tab.active::after{width:100%}
+
+    .page{max-width:900px;margin:0 auto;padding:48px 24px 80px}
+
+    /* HERO */
+    .hero{display:flex;align-items:flex-start;gap:40px;margin-bottom:56px}
+    .avatar-wrap{flex-shrink:0;position:relative}
+    .avatar-ring{width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--gold) 0deg,var(--brown) 120deg,var(--gold-light) 240deg,var(--gold) 360deg);padding:3px;animation:spin 12s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .avatar-inner{width:100%;height:100%;border-radius:50%;background:var(--bg);padding:4px;animation:spin 12s linear infinite reverse}
+    .avatar-img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;background:var(--gold-light)}
+    .platform-badge{position:absolute;bottom:8px;right:8px;background:var(--soop);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em}
+    .hero-info{flex:1;padding-top:8px}
+    .agency-tag{display:inline-block;font-size:11px;font-weight:500;letter-spacing:.12em;color:var(--brown);border:1px solid var(--brown);padding:3px 10px;border-radius:4px;margin-bottom:12px;text-transform:uppercase}
+    .name-kr{font-family:'Gowun Batang',serif;font-size:52px;font-weight:700;line-height:1;margin-bottom:4px}
+    .name-en{font-size:13px;letter-spacing:.2em;color:var(--text-muted);margin-bottom:16px;text-transform:uppercase}
+    .bio{font-size:15px;line-height:1.7;color:var(--text-muted);max-width:420px;margin-bottom:20px}
+    .catchphrase{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--brown-dark);background:var(--gold-light);padding:6px 16px;border-radius:6px;font-style:italic}
+
+    /* STATS */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:40px}
+    .stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 12px;text-align:center;transition:transform .2s,box-shadow .2s}
+    .stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(155,116,90,.12)}
+    .stat-icon{font-size:22px;margin-bottom:6px}
+    .stat-val{font-size:14px;font-weight:700;margin-bottom:2px}
+    .stat-label{font-size:11px;color:var(--text-muted);letter-spacing:.04em}
+
+    /* SECTION TITLE */
+    .sec-title{font-family:'Gowun Batang',serif;font-size:13px;letter-spacing:.15em;color:var(--brown);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* DETAILS */
+    .details-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px}
+    .detail-block{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+    .detail-block h3{font-size:11px;letter-spacing:.1em;color:var(--brown);text-transform:uppercase;margin-bottom:12px;font-weight:500}
+    .detail-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(155,116,90,.08)}
+    .detail-row:last-child{border-bottom:none}
+    .detail-key{font-size:12px;color:var(--text-muted)}
+    .detail-val{font-size:12px;font-weight:500;text-align:right;max-width:180px}
+
+    /* SCHEDULE BOX */
+    .schedule-box{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:40px}
+    .schedule-days{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .day-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;background:var(--gold-pale);color:var(--brown-dark);border:1px solid var(--gold)}
+    .schedule-time{font-size:28px;font-family:'Gowun Batang',serif;display:flex;align-items:baseline;gap:8px}
+    .schedule-time span{font-size:14px;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;font-weight:300}
+
+    /* TAGS */
+    .tags-wrap{margin-bottom:40px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .tag{font-size:12px;padding:5px 14px;border-radius:20px;border:1px solid var(--border);color:var(--brown-dark);background:var(--white);transition:background .2s}
+    .tag.like{background:var(--gold-pale);border-color:var(--gold)}
+    .tag.dislike{background:#fff5f5;border-color:#fca5a5;color:#b91c1c}
+
+    /* LINKS */
+    .links{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
+    .link-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;text-decoration:none;transition:transform .15s,box-shadow .15s;border:1px solid transparent}
+    .link-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+    .link-btn.soop{background:var(--soop);color:#fff}
+    .link-btn.yt{background:#ff0000;color:#fff}
+    .link-btn.naver{background:#03c75a;color:#fff}
+    .link-btn.fancim{background:#f0f0f0;color:#333;border-color:#ddd}
+
+    /* VOD */
+    .vod-wrap{margin-bottom:40px}
+    .vod-player{border-radius:16px;overflow:hidden;background:#000;aspect-ratio:16/9;margin-bottom:12px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+    .vod-player iframe{width:100%;height:100%;border:none;display:block}
+    .vod-empty{display:flex;align-items:center;justify-content:center;height:200px;background:var(--white);border:1px solid var(--border);border-radius:16px;color:var(--text-muted);font-size:14px;margin-bottom:12px}
+    .vod-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .vod-thumb{position:relative;border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .25s;background:#000;aspect-ratio:16/9}
+    .vod-thumb:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(155,116,90,.2)}
+    .vod-thumb.active{border-color:var(--gold);box-shadow:0 4px 16px rgba(255,210,108,.4)}
+    .vod-thumb-bg{width:100%;height:100%;background:linear-gradient(135deg,var(--gold-pale),var(--gold-light));display:flex;align-items:center;justify-content:center}
+    .vod-thumb-title{position:absolute;bottom:0;left:0;right:0;padding:8px 10px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:.6875rem;font-weight:600}
+    .vod-play-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;background:rgba(255,210,108,.85);display:flex;align-items:center;justify-content:center;color:var(--brown-dark);font-size:12px;opacity:0;transition:opacity .2s}
+    .vod-thumb:hover .vod-play-icon{opacity:1}
+    .vod-thumb.active .vod-play-icon{opacity:0}
+
+    /* FOOTER */
+    footer{text-align:center;font-size:11px;color:var(--text-muted);letter-spacing:.08em;padding-top:24px;border-top:1px solid var(--border)}
+
+    /* FADE */
+    .fade-up{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+    .fade-up.visible{opacity:1;transform:translateY(0)}
+
+    @media(max-width:768px){
+      .hero{flex-direction:column;align-items:center;text-align:center;gap:24px}
+      .name-kr{font-size:38px}
+      .bio{max-width:100%}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .details-grid{grid-template-columns:1fr}
+      .vod-list{grid-template-columns:1fr}
+      .nav-tab{padding:10px 14px;font-size:.8125rem}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-tab active">프로필</a>
+    <a href="/schedule/" class="nav-tab">일정</a>
+    <a href="/song/" class="nav-tab">노래책</a>
+  </div>
+</nav>
+
+<main class="page">
+
+  <!-- HERO -->
+  <section class="hero fade-up">
+    <div class="avatar-wrap">
+      <div class="avatar-ring">
+        <div class="avatar-inner">
+          <img class="avatar-img"
+            src="https://profile.img.sooplive.com/LOGO/ar/aranroh/aranroh.jpg"
+            alt="노아란"
+            onerror="this.style.background='linear-gradient(135deg,#ffd26c,#9b745a)'">
+        </div>
+      </div>
+      <div class="platform-badge">SOOP</div>
+    </div>
+    <div class="hero-info">
+      <div class="agency-tag">유니버스</div>
+      <div class="name-kr">노아란</div>
+      <div class="name-en">aranroh · Universe</div>
+      <div class="bio">노래하고 게임하는 119살 바위너구리</div>
+      <div class="catchphrase">💛 &nbsp;돌아버려</div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats fade-up">
+    <div class="stat-card"><div class="stat-icon">🎂</div><div class="stat-val">12월 12일</div><div class="stat-label">생일</div></div>
+    <div class="stat-card"><div class="stat-icon">🎤</div><div class="stat-val">K-발라드</div><div class="stat-label">주요 장르</div></div>
+    <div class="stat-card"><div class="stat-icon">🎮</div><div class="stat-val">스팀 종합</div><div class="stat-label">게임 콘텐츠</div></div>
+    <div class="stat-card"><div class="stat-icon">🪨</div><div class="stat-val">돌아지</div><div class="stat-label">팬 이름</div></div>
+  </div>
+
+  <!-- PROFILE DETAILS -->
+  <div class="sec-title fade-up">프로필</div>
+  <div class="details-grid fade-up">
+    <div class="detail-block">
+      <h3>기본 정보</h3>
+      <div class="detail-row"><span class="detail-key">데뷔</span><span class="detail-val">2024. 10. 10</span></div>
+      <div class="detail-row"><span class="detail-key">성별</span><span class="detail-val">여</span></div>
+      <div class="detail-row"><span class="detail-key">머리 / 눈</span><span class="detail-val">금발 / 노랑</span></div>
+      <div class="detail-row"><span class="detail-key">상징</span><span class="detail-val">돌멩이</span></div>
+      <div class="detail-row"><span class="detail-key">성격 유형</span><span class="detail-val">ENFP · 안정형</span></div>
+    </div>
+    <div class="detail-block">
+      <h3>방송 정보</h3>
+      <div class="detail-row"><span class="detail-key">플랫폼</span><span class="detail-val">SOOP</span></div>
+      <div class="detail-row"><span class="detail-key">소속</span><span class="detail-val">유니버스</span></div>
+      <div class="detail-row"><span class="detail-key">콘텐츠</span><span class="detail-val">게임 · 노래</span></div>
+      <div class="detail-row"><span class="detail-key">노래 빈도</span><span class="detail-val">정기적</span></div>
+      <div class="detail-row"><span class="detail-key">최애 곡</span><span class="detail-val">시작의 아이 - 마크툽</span></div>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="sec-title fade-up">방송 일정</div>
+  <div class="schedule-box fade-up">
+    <div class="schedule-days">
+      <div class="day-pill">일</div><div class="day-pill">월</div><div class="day-pill">화</div><div class="day-pill">수</div><div class="day-pill">목</div>
+    </div>
+    <div class="schedule-time">저녁 10:00 <span>정기 방송 시간</span></div>
+  </div>
+
+  <!-- LIKES / DISLIKES -->
+  <div class="sec-title fade-up">좋아하는 것 · 싫어하는 것</div>
+  <div class="tags-wrap fade-up">
+    <div class="tags">
+      <span class="tag like">💛 노랑색</span><span class="tag like">🐾 동물</span><span class="tag like">🌸 꽃</span><span class="tag like">🧸 귀여운 것</span><span class="tag like">🪨 하찮은 것</span>
+      <span class="tag dislike">🚫 핑크색</span><span class="tag dislike">🦟 곤충</span><span class="tag dislike">👻 무서운 거</span><span class="tag dislike">🫘 팥</span><span class="tag dislike">😤 무례한 것</span>
+    </div>
+  </div>
+
+  <!-- LINKS -->
+  <div class="sec-title fade-up">링크</div>
+  <div class="links fade-up">
+    <a class="link-btn soop" href="https://www.sooplive.com/station/aranroh" target="_blank">🎬 SOOP 채널</a>
+    <a class="link-btn yt" href="https://www.youtube.com/@aarann119" target="_blank">▶ YouTube</a>
+    <a class="link-btn naver" href="https://cafe.naver.com/projectuniversee" target="_blank">☕ 공식 카페</a>
+    <a class="link-btn fancim" href="https://fancim.me/celeb/profile.aspx?url=342448" target="_blank">⭐ 팬심</a>
+  </div>
+
+  <!-- VOD CLIPS -->
+  <div class="sec-title fade-up">노래 커버</div>
+  <div class="vod-wrap fade-up">
+    <div id="vodPlayer" class="vod-player">
+      <div class="vod-empty" id="vodEmpty">등록된 영상이 없습니다</div>
+    </div>
+    <div class="vod-list" id="vodList"></div>
+  </div>
+
+</main>
+
+<footer>Designed &amp; Developed by 아키텍트 크리에이티브 · profile@soop.info</footer>
+
+<script src="js/supabase-config.js"></script>
+<script>
+  const sb = initSupabase();
+  let vodData = [];
+
+  async function loadVod() {
+    const { data } = await sb.from('vod_clips').select('*').order('sort_order').order('created_at');
+    vodData = data || [];
+    renderVod();
+  }
+
+  function renderVod() {
+    const playerEl = document.getElementById('vodPlayer');
+    const listEl = document.getElementById('vodList');
+    const emptyEl = document.getElementById('vodEmpty');
+
+    if (!vodData.length) {
+      playerEl.innerHTML = '<div class="vod-empty">등록된 영상이 없습니다</div>';
+      listEl.innerHTML = '';
+      return;
+    }
+
+    emptyEl && emptyEl.remove();
+    playerEl.innerHTML = `<iframe src="https://vod.sooplive.com/player/${vodData[0].vod_id}/embed?showChat=false&autoPlay=false&mutePlay=false" allowfullscreen allow="clipboard-write; web-share;"></iframe>`;
+
+    listEl.innerHTML = vodData.map((v, i) => `
+      <div class="vod-thumb${i===0?' active':''}" onclick="switchVod(${i})" data-idx="${i}">
+        <div class="vod-thumb-bg">▶</div>
+        <div class="vod-thumb-title">${v.title}</div>
+        <div class="vod-play-icon">▶</div>
+      </div>
+    `).join('');
+  }
+
+  function switchVod(idx) {
+    const v = vodData[idx];
+    if (!v) return;
+    document.getElementById('vodPlayer').innerHTML = `<iframe src="https://vod.sooplive.com/player/${v.vod_id}/embed?showChat=false&autoPlay=false&mutePlay=false" allowfullscreen allow="clipboard-write; web-share;"></iframe>`;
+    document.querySelectorAll('.vod-thumb').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.vod-thumb[data-idx="${idx}"]`).classList.add('active');
+  }
+
+  // fade-up observer
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  loadVod();
+</script>
+</body>
+</html>
