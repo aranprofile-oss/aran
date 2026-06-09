@@ -8,31 +8,21 @@ export async function onRequestGet({ request }) {
   const url = new URL(request.url);
   const vodId = url.searchParams.get("vod_id");
 
-  try {
-    const apiUrl = `https://api-channel.sooplive.com/v1.1/channel/aranroh/vod/clip?orderBy=regDate&perPage=60&page=1&field=title,contents,userNick,userId`;
-    const res = await fetch(apiUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Referer": "https://vod.sooplive.com/",
-        "Origin": "https://vod.sooplive.com"
-      }
+  if (!vodId) {
+    return new Response(JSON.stringify({ error: "vod_id required" }), {
+      status: 400, headers: { ...CORS, "Content-Type": "application/json" }
     });
-    const json = await res.json();
+  }
 
-    if (vodId) {
-      const list = json.data || json.list || json.vods || [];
-      const found = list.find(v => String(v.titleNo) === String(vodId));
-      if (found?.ucc?.thumb) {
-        return new Response(JSON.stringify({ thumb: found.ucc.thumb }), {
-          headers: { ...CORS, "Content-Type": "application/json" }
-        });
-      }
-      return new Response(JSON.stringify({ thumb: null, raw: json }), {
-        headers: { ...CORS, "Content-Type": "application/json" }
-      });
-    }
+  try {
+    const res = await fetch(`https://vod.sooplive.com/player/${vodId}/embed`, {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" }
+    });
+    const html = await res.text();
+    const match = html.match(/"thumbnailUrl"\s*:\s*"([^"]+)"/);
+    const thumb = match ? match[1] : null;
 
-    return new Response(JSON.stringify(json), {
+    return new Response(JSON.stringify({ thumb }), {
       headers: { ...CORS, "Content-Type": "application/json" }
     });
   } catch(e) {
