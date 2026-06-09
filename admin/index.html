@@ -291,11 +291,7 @@
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-xs text-sub mb-1 font-medium">연도 *</label>
-                    <select id="achYear" class="input-field">
-                      <option value="2026">2026</option>
-                      <option value="2025">2025</option>
-                      <option value="2024">2024</option>
-                    </select>
+                    <input type="number" id="achYear" class="input-field" value="2026" min="2020" max="2099" placeholder="예: 2026">
                   </div>
                   <div>
                     <label class="block text-xs text-sub mb-1 font-medium">날짜 *</label>
@@ -352,12 +348,7 @@
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-base font-bold text-txt">등록된 업적</h2>
               <div class="flex gap-2">
-                <select id="achFilterYear" class="input-field" style="width:auto;padding:6px 12px;font-size:.8125rem" onchange="loadAchievements()">
-                  <option value="all">전체</option>
-                  <option value="2026">2026</option>
-                  <option value="2025">2025</option>
-                  <option value="2024">2024</option>
-                </select>
+<select id="achFilterYear" class="input-field" style="width:auto;padding:6px 12px;font-size:.8125rem" onchange="loadAchievements()"><option value="all">전체</option></select>
                 <select id="achFilterCat" class="input-field" style="width:auto;padding:6px 12px;font-size:.8125rem" onchange="renderAchList()">
                   <option value="all">전체 카테고리</option>
                 </select>
@@ -619,14 +610,20 @@
 
     async function loadAchievements() {
       const yr = document.getElementById('achFilterYear').value;
-      let q = sb.from('achievements').select('*, achievement_categories(name,color)').order('year').order('sort_order').order('date_label');
-      if (yr !== 'all') q = q.eq('year', parseInt(yr));
       const { data: cats } = await sb.from('achievement_categories').select('*').order('sort_order');
       achCats = cats || [];
       renderCatList();
       renderCatSelects();
+      let q = sb.from('achievements').select('*, achievement_categories(name,color)').order('year',{ascending:false}).order('sort_order').order('date_label');
+      if (yr !== 'all') q = q.eq('year', parseInt(yr));
       const { data } = await q;
       achData = data || [];
+      // 연도 셀렉트 동적 업데이트
+      const years = [...new Set(achData.map(a=>a.year).filter(Boolean))].sort((a,b)=>b-a);
+      const sel = document.getElementById('achFilterYear');
+      const cur = sel.value;
+      sel.innerHTML = '<option value="all">전체</option>' + years.map(y=>`<option value="${y}">${y}년</option>`).join('');
+      sel.value = cur;
       renderAchList();
     }
 

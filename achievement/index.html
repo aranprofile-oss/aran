@@ -31,56 +31,56 @@
     .nav-tab:hover{color:var(--brown-dark)} .nav-tab:hover::after{width:60%}
     .nav-tab.active{color:var(--brown-dark)} .nav-tab.active::after{width:100%}
 
-    .page{max-width:680px;margin:0 auto;padding:40px 24px 80px}
+    .page{max-width:860px;margin:0 auto;padding:40px 24px 80px}
 
-    /* 페이지 타이틀 */
-    .page-title{font-family:'GmarketSans',sans-serif;font-size:32px;font-weight:700;margin-bottom:6px}
-    .page-sub{font-size:13px;color:var(--text-muted);margin-bottom:28px;font-weight:300}
+    .page-title{font-family:'GmarketSans',sans-serif;font-size:36px;font-weight:700;margin-bottom:6px}
+    .page-sub{font-size:14px;color:var(--text-muted);margin-bottom:24px;font-weight:300}
 
-    /* 카테고리 필터 */
+    /* 연도 탭 */
+    .year-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+    .year-tab{padding:7px 20px;border-radius:10px;font-size:14px;font-weight:500;border:1.5px solid var(--border);cursor:pointer;transition:all .2s;background:var(--white);color:var(--text-muted);font-family:'Pretendard',sans-serif}
+    .year-tab:hover{border-color:var(--brown);color:var(--brown-dark)}
+    .year-tab.active{background:var(--brown-dark);color:#fff;border-color:var(--brown-dark)}
+
+    /* 카테고리 하이라이트 선택 */
     .cat-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
-    .cat-btn{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid transparent;cursor:pointer;transition:all .2s;background:var(--white);color:var(--text-muted);border-color:var(--border);font-family:'Pretendard',sans-serif}
+    .cat-btn{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid transparent;cursor:pointer;transition:all .2s;background:var(--white);color:var(--text-muted);border-color:var(--border);font-family:'Pretendard',sans-serif}
     .cat-btn:hover{border-color:var(--brown);color:var(--brown-dark)}
     .cat-btn.active{color:#fff;border-color:transparent}
-    .cat-btn.all.active{background:var(--brown-dark);color:#fff}
+    .cat-btn.none-active{background:var(--brown-dark);color:#fff;border-color:var(--brown-dark)}
 
-    /* 연도 그룹 */
-    .year-group{margin-bottom:36px}
-    .year-label{font-family:'GmarketSans',sans-serif;font-size:18px;font-weight:700;color:var(--brown-dark);margin-bottom:16px;padding-bottom:8px;border-bottom:1.5px solid var(--border)}
+    /* 연도 섹션 */
+    .year-section{margin-bottom:40px}
+    .year-section.hidden{display:none}
+    .year-label{font-family:'GmarketSans',sans-serif;font-size:20px;font-weight:700;color:var(--brown-dark);margin-bottom:16px;padding-bottom:10px;border-bottom:1.5px solid var(--border)}
 
     /* 업적 아이템 */
-    .ach-item{display:flex;gap:16px;padding:10px 0;border-bottom:1px solid rgba(155,116,90,.07);transition:opacity .3s}
+    .ach-item{display:flex;gap:16px;padding:11px 0;border-bottom:1px solid rgba(155,116,90,.07);transition:opacity .25s}
     .ach-item:last-child{border-bottom:none}
-    .ach-item.hidden{display:none}
-    .ach-date{flex-shrink:0;width:72px;font-size:12px;color:var(--text-muted);font-weight:400;padding-top:2px;white-space:nowrap}
-    .ach-content{font-size:14px;line-height:1.7;font-weight:300;position:relative;display:inline}
-    .ach-item{display:flex;gap:16px;padding:10px 0;border-bottom:1px solid rgba(155,116,90,.07);transition:opacity .3s}
-    .ach-item.dimmed .ach-content{opacity:.35}
-    .ach-highlight{display:inline;border-radius:3px;padding:1px 3px;background:transparent;transition:background .3s}
-    .ach-highlight.lit{background:var(--hl-color, rgba(230,184,74,.3))}
-    .ach-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;margin-top:6px}
+    .ach-item.dimmed{opacity:.28}
+    .ach-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;margin-top:5px}
+    .ach-date{flex-shrink:0;width:76px;font-size:13px;color:var(--text-muted);font-weight:400;white-space:nowrap}
+    .ach-content{font-size:15px;line-height:1.7;font-weight:300}
+    .ach-highlight{border-radius:3px;padding:1px 3px;background:transparent;transition:background .25s}
+    .ach-highlight.lit{background:var(--hl-color,rgba(230,184,74,.3))}
 
     .empty{text-align:center;padding:48px 0;color:var(--text-muted);font-size:14px}
-
     footer p{margin-bottom:4px}
     footer{text-align:center;font-size:11px;color:var(--text-muted);letter-spacing:.08em;padding:24px 0 32px;border-top:1px solid var(--border)}
-
     @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     .fade-in{animation:fadeInUp .4s ease both}
-
     @media(max-width:640px){
-      .page-title{font-size:24px}
-      .ach-date{width:40px;font-size:11px}
-      .ach-content{font-size:13px}
+      .page-title{font-size:26px}
+      .ach-date{width:56px;font-size:12px}
+      .ach-content{font-size:14px}
     }
   </style>
 </head>
 <body>
-
 <nav>
   <div class="nav-inner">
     <a href="/" class="nav-tab">프로필</a>
-    <a href="/achievement/" class="nav-tab  active">업적</a>
+    <a href="/achievement/" class="nav-tab active">업적</a>
     <a href="/schedule/" class="nav-tab">일정</a>
     <a href="https://meloming.com/channel/aarann_/musicbook" target="_blank" class="nav-tab">노래책</a>
   </div>
@@ -92,8 +92,12 @@
     <div class="page-sub">활동 기록 · 노래대회 · 이벤트 참여</div>
   </div>
 
+  <!-- 연도 탭 -->
+  <div class="year-tabs fade-in" id="yearTabs"></div>
+
+  <!-- 카테고리 하이라이트 선택 -->
   <div class="cat-filters fade-in" id="catFilters">
-    <button class="cat-btn all active" data-cat="all" onclick="selectCat('all',this)">전체</button>
+    <button class="cat-btn none-active" data-cat="none" onclick="selectCat('none',this)">하이라이트 없음</button>
   </div>
 
   <div id="achBody"></div>
@@ -109,7 +113,8 @@
   const sb = initSupabase();
   let categories = [];
   let achievements = [];
-  let activeCat = 'all';
+  let activeYear = 'all';
+  let activeCat = 'none';
 
   function hexToRgba(hex, a) {
     const h = hex.replace('#','');
@@ -120,23 +125,64 @@
   async function load() {
     const [r1, r2] = await Promise.all([
       sb.from('achievement_categories').select('*').order('sort_order'),
-      sb.from('achievements').select('*, achievement_categories(name,color)').order('year').order('sort_order').order('date_label')
+      sb.from('achievements').select('*, achievement_categories(name,color)').order('year',{ascending:false}).order('sort_order').order('date_label')
     ]);
     categories = r1.data || [];
     achievements = r2.data || [];
-    renderFilters();
+    renderYearTabs();
+    renderCatFilters();
     renderAchievements();
   }
 
-  function renderFilters() {
+  function renderYearTabs() {
+    const years = [...new Set(achievements.map(a=>a.year).filter(Boolean))].sort((a,b)=>b-a);
+    const wrap = document.getElementById('yearTabs');
+    wrap.innerHTML = '';
+    years.forEach(function(y, i) {
+      const btn = document.createElement('button');
+      btn.className = 'year-tab' + (i===0?' active':'');
+      btn.dataset.year = y;
+      btn.textContent = y+'년';
+      btn.onclick = function(){ selectYear(String(y), btn); };
+      wrap.appendChild(btn);
+    });
+    // 전체 탭
+    const allBtn = document.createElement('button');
+    allBtn.className = 'year-tab';
+    allBtn.dataset.year = 'all';
+    allBtn.textContent = '전체';
+    allBtn.onclick = function(){ selectYear('all', allBtn); };
+    wrap.appendChild(allBtn);
+    // 첫 연도 기본 선택
+    if (years.length) activeYear = String(years[0]);
+  }
+
+  function selectYear(year, el) {
+    activeYear = year;
+    document.querySelectorAll('.year-tab').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
+    applyYearFilter();
+  }
+
+  function applyYearFilter() {
+    document.querySelectorAll('.year-section').forEach(function(sec) {
+      if (activeYear === 'all' || sec.dataset.year === activeYear) {
+        sec.classList.remove('hidden');
+      } else {
+        sec.classList.add('hidden');
+      }
+    });
+  }
+
+  function renderCatFilters() {
     const wrap = document.getElementById('catFilters');
     categories.forEach(function(cat) {
       const btn = document.createElement('button');
       btn.className = 'cat-btn';
       btn.dataset.cat = cat.id;
       btn.textContent = cat.name;
-      btn.style.cssText = 'border-color:'+cat.color+'40;color:'+cat.color;
-      btn.onclick = function() { selectCat(cat.id, btn); };
+      btn.style.cssText = 'border-color:'+cat.color+'50;color:'+cat.color;
+      btn.onclick = function(){ selectCat(cat.id, btn); };
       wrap.appendChild(btn);
     });
   }
@@ -144,15 +190,18 @@
   function selectCat(catId, el) {
     activeCat = catId;
     document.querySelectorAll('.cat-btn').forEach(function(b) {
-      b.classList.remove('active');
-      const cat = categories.find(function(x){ return x.id === b.dataset.cat; });
-      if (cat) b.style.cssText = 'border-color:'+cat.color+'40;color:'+cat.color;
-      else b.style.cssText = '';
+      b.classList.remove('active','none-active');
+      const cat = categories.find(function(x){ return x.id===b.dataset.cat; });
+      if (cat) b.style.cssText = 'border-color:'+cat.color+'50;color:'+cat.color;
+      else { b.style.cssText=''; b.classList.add('none-active'); }
     });
     el.classList.add('active');
-    if (catId !== 'all') {
-      const cat = categories.find(function(x){ return x.id === catId; });
+    if (catId !== 'none') {
+      const cat = categories.find(function(x){ return x.id===catId; });
       if (cat) el.style.cssText = 'background:'+cat.color+';color:#fff;border-color:'+cat.color;
+    } else {
+      el.classList.remove('active');
+      el.classList.add('none-active');
     }
     applyHighlight();
   }
@@ -172,16 +221,17 @@
     body.innerHTML = years.map(function(year) {
       const items = byYear[year].map(function(a) {
         const cat = a.achievement_categories;
-        const color = (cat && cat.color) ? cat.color : '#E6B84A';
+        const color = (cat&&cat.color)?cat.color:'#E6B84A';
         return '<div class="ach-item" data-cat="'+(a.category_id||'')+'">'+
           '<div class="ach-dot" style="background:'+color+'"></div>'+
           '<div class="ach-date">'+(a.date_label||'')+'</div>'+
           '<div class="ach-content"><span class="ach-highlight" data-cat="'+(a.category_id||'')+'" data-color="'+color+'">'+a.content+'</span></div>'+
           '</div>';
       }).join('');
-      return '<div class="year-group fade-in"><div class="year-label">'+year+'년</div>'+items+'</div>';
+      return '<div class="year-section fade-in" data-year="'+year+'"><div class="year-label">'+year+'년</div>'+items+'</div>';
     }).join('');
 
+    applyYearFilter();
     applyHighlight();
   }
 
@@ -191,9 +241,9 @@
       if (!hl) return;
       const color = hl.dataset.color || '#E6B84A';
       const catId = hl.dataset.cat;
-      if (activeCat === 'all') {
-        hl.classList.add('lit');
-        hl.style.setProperty('--hl-color', hexToRgba(color, 0.18));
+      if (activeCat === 'none') {
+        hl.classList.remove('lit');
+        hl.style.removeProperty('--hl-color');
         item.classList.remove('dimmed');
       } else {
         if (catId === activeCat) {
@@ -202,6 +252,7 @@
           item.classList.remove('dimmed');
         } else {
           hl.classList.remove('lit');
+          hl.style.removeProperty('--hl-color');
           item.classList.add('dimmed');
         }
       }
