@@ -59,8 +59,8 @@
     .cal-cell:nth-child(7n) .cal-day-num { color:#7BA0D4; }
     .cal-event { font-size:.6875rem; padding:3px 6px; border-radius:6px; margin-bottom:2px; color:#fff; font-weight:500; line-height:1.35; cursor:pointer; transition:opacity .2s; width:100%; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; box-sizing:border-box; }
     .cal-event:hover { opacity:.82; }
-    .cal-event.highlight { outline:2px solid rgba(255,255,255,.6); outline-offset:-1px; box-shadow:0 0 0 2px rgba(255,255,255,.9), 0 0 10px 3px rgba(255,255,255,.6); animation:shimmer 2s ease-in-out infinite; }
-    @keyframes shimmer { 0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 8px 2px rgba(255,255,255,.5)} 50%{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 14px 5px rgba(255,255,255,.8)} }
+    .cal-event.highlight { animation:neon-glow 1.6s ease-in-out infinite; }
+    @keyframes neon-glow { 0%,100%{box-shadow:0 0 4px 1px rgba(255,255,255,.5),0 0 8px 2px rgba(255,255,255,.2)} 50%{box-shadow:0 0 8px 3px rgba(255,255,255,.9),0 0 16px 6px rgba(255,255,255,.5),0 0 24px 8px rgba(255,255,255,.2)} }
 
     /* 리스트 뷰 */
     .list-date-group { margin-bottom:14px; }
