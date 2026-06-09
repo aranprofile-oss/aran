@@ -239,6 +239,7 @@
           title: ev.title,
           description: ev.description,
           color: ev.color || null,
+          highlight: ev.highlight || false,
           is_special: ev.event_type==='special'||ev.event_type==='anniversary',
           tags: ev.event_type==='rest'?['휴방']:ev.event_type==='collab'?['합방']:ev.event_type==='special'?['이벤트']:ev.event_type==='anniversary'?['기념일']:[]
         }));
