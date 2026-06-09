@@ -93,7 +93,7 @@
   </div>
 
   <div class="cat-filters fade-in" id="catFilters">
-    <button class="cat-btn all active" data-cat="all" onclick="filterCat('all',this)">전체</button>
+    <button class="cat-btn all active" data-cat="all" onclick="selectCat('all',this)">전체</button>
   </div>
 
   <div id="achBody"></div>
@@ -111,107 +111,101 @@
   let achievements = [];
   let activeCat = 'all';
 
+  function hexToRgba(hex, a) {
+    const h = hex.replace('#','');
+    const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+    return 'rgba('+r+','+g+','+b+','+a+')';
+  }
+
   async function load() {
-    const [{ data: cats }, { data: achs }] = await Promise.all([
+    const [r1, r2] = await Promise.all([
       sb.from('achievement_categories').select('*').order('sort_order'),
       sb.from('achievements').select('*, achievement_categories(name,color)').order('year').order('sort_order').order('date_label')
     ]);
-    categories = cats || [];
-    achievements = achs || [];
+    categories = r1.data || [];
+    achievements = r2.data || [];
     renderFilters();
-    applyHighlight();
+    renderAchievements();
   }
 
   function renderFilters() {
     const wrap = document.getElementById('catFilters');
-    const existing = wrap.querySelector('.all');
-    categories.forEach(cat => {
+    categories.forEach(function(cat) {
       const btn = document.createElement('button');
       btn.className = 'cat-btn';
       btn.dataset.cat = cat.id;
       btn.textContent = cat.name;
-      btn.style.cssText = `border-color:${cat.color}20;color:${cat.color}`;
-      btn.onclick = () => filterCat(cat.id, btn);
+      btn.style.cssText = 'border-color:'+cat.color+'40;color:'+cat.color;
+      btn.onclick = function() { selectCat(cat.id, btn); };
       wrap.appendChild(btn);
     });
   }
 
-  function filterCat(catId, el) {
+  function selectCat(catId, el) {
     activeCat = catId;
-    document.querySelectorAll('.cat-btn').forEach(b => {
+    document.querySelectorAll('.cat-btn').forEach(function(b) {
       b.classList.remove('active');
-      const c = categories.find(c => c.id === b.dataset.cat);
-      if (c) { b.style.cssText = `border-color:${c.color}20;color:${c.color}`; }
-      else { b.style.cssText = ''; }
+      const cat = categories.find(function(x){ return x.id === b.dataset.cat; });
+      if (cat) b.style.cssText = 'border-color:'+cat.color+'40;color:'+cat.color;
+      else b.style.cssText = '';
     });
     el.classList.add('active');
     if (catId !== 'all') {
-      const cat = categories.find(c => c.id === catId);
-      if (cat) el.style.cssText = `background:${cat.color};color:#fff;border-color:${cat.color}`;
+      const cat = categories.find(function(x){ return x.id === catId; });
+      if (cat) el.style.cssText = 'background:'+cat.color+';color:#fff;border-color:'+cat.color;
     }
-    renderAchievements();
+    applyHighlight();
   }
 
   function renderAchievements() {
     const body = document.getElementById('achBody');
-    const filtered = activeCat === 'all' ? achievements : achievements.filter(a => a.category_id === activeCat);
+    if (!achievements.length) { body.innerHTML = '<div class="empty">등록된 업적이 없습니다</div>'; return; }
 
-    if (!filtered.length) {
-      body.innerHTML = '<div class="empty">등록된 업적이 없습니다</div>';
-      return;
-    }
-
-    // 연도별 그룹
     const byYear = {};
-    filtered.forEach(a => {
+    achievements.forEach(function(a) {
       const y = a.year || '기타';
       if (!byYear[y]) byYear[y] = [];
       byYear[y].push(a);
     });
 
-    body.innerHTML = Object.keys(byYear).sort((a,b) => b-a).map(year => {
-      const items = byYear[year].map(a => {
+    const years = Object.keys(byYear).sort(function(a,b){ return b-a; });
+    body.innerHTML = years.map(function(year) {
+      const items = byYear[year].map(function(a) {
         const cat = a.achievement_categories;
-        const color = cat?.color || '#E6B84A';
-        const hex = color.replace('#','');
-        const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
-        const hasHighlight = activeCat !== 'all' || a.category_id;
-        const contentHtml = hasHighlight
-          ? `<span class="ach-highlight" style="--hc:${r},${g},${b}"><span>${a.content}</span></span>`
-          : a.content;
-        return `<div class="ach-item" data-cat="${a.category_id||''}">
-          <div class="ach-dot" style="background:${color}"></div>
-          <div class="ach-date">${a.date_label||''}</div>
-          <div class="ach-content">${contentHtml}</div>
-        </div>`;
+        const color = (cat && cat.color) ? cat.color : '#E6B84A';
+        return '<div class="ach-item" data-cat="'+(a.category_id||'')+'">'+
+          '<div class="ach-dot" style="background:'+color+'"></div>'+
+          '<div class="ach-date">'+(a.date_label||'')+'</div>'+
+          '<div class="ach-content"><span class="ach-highlight" data-cat="'+(a.category_id||'')+'" data-color="'+color+'">'+a.content+'</span></div>'+
+          '</div>';
       }).join('');
-      return `<div class="year-group fade-in"><div class="year-label">${year}년</div>${items}</div>`;
+      return '<div class="year-group fade-in"><div class="year-label">'+year+'년</div>'+items+'</div>';
     }).join('');
 
-    // 하이라이트 before 색상 적용
-    document.querySelectorAll('.ach-highlight').forEach(el => {
-      const style = el.getAttribute('style');
-      const match = style && style.match(/--hc:([\d,]+)/);
-      if (match) {
-        const [r,g,b] = match[1].split(',');
-        el.style.setProperty('--hc', match[1]);
-        // before pseudo는 CSS var로 처리
+    applyHighlight();
+  }
+
+  function applyHighlight() {
+    document.querySelectorAll('.ach-item').forEach(function(item) {
+      const hl = item.querySelector('.ach-highlight');
+      if (!hl) return;
+      const color = hl.dataset.color || '#E6B84A';
+      const catId = hl.dataset.cat;
+      if (activeCat === 'all') {
+        hl.classList.add('lit');
+        hl.style.setProperty('--hl-color', hexToRgba(color, 0.18));
+        item.classList.remove('dimmed');
+      } else {
+        if (catId === activeCat) {
+          hl.classList.add('lit');
+          hl.style.setProperty('--hl-color', hexToRgba(color, 0.42));
+          item.classList.remove('dimmed');
+        } else {
+          hl.classList.remove('lit');
+          item.classList.add('dimmed');
+        }
       }
     });
-
-    // 카테고리 필터 시 해당 색상 하이라이트만 강조
-    if (activeCat !== 'all') {
-      const cat = categories.find(c => c.id === activeCat);
-      if (cat) {
-        const hex = cat.color.replace('#','');
-        const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
-        document.querySelectorAll('.ach-highlight::before').forEach(el => {});
-        // inline style로 처리
-        document.querySelectorAll('.ach-highlight').forEach(el => {
-          el.style.background = `linear-gradient(transparent 40%, rgba(${r},${g},${b},.35) 40%, rgba(${r},${g},${b},.35) 88%, transparent 88%)`;
-        });
-      }
-    }
   }
 
   load();
