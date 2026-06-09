@@ -120,6 +120,7 @@
       <div class="flex gap-6 border-b border-point/30 overflow-x-auto">
         <button class="tab-btn active pb-3 text-sm whitespace-nowrap" data-tab="schedule">📅 일정 관리</button>
         <button class="tab-btn pb-3 text-sm whitespace-nowrap" data-tab="vod">🎬 커버 영상</button>
+        <button class="tab-btn pb-3 text-sm whitespace-nowrap" data-tab="achievement">🏆 업적 관리</button>
       </div>
     </div>
 
@@ -276,6 +277,97 @@
         </div>
       </div>
 
+      <!-- ========== 업적 관리 ========== -->
+      <div id="tab-achievement" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+          <!-- 입력 폼 -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- 업적 추가 -->
+            <div class="bg-white rounded-2xl border border-point/20 p-6">
+              <h2 id="achFormTitle" class="text-base font-bold text-txt mb-4">업적 추가</h2>
+              <input type="hidden" id="achEditId">
+              <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs text-sub mb-1 font-medium">연도 *</label>
+                    <select id="achYear" class="input-field">
+                      <option value="2026">2026</option>
+                      <option value="2025">2025</option>
+                      <option value="2024">2024</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs text-sub mb-1 font-medium">날짜 *</label>
+                    <input type="text" id="achDate" class="input-field" placeholder="예: 6.1 또는 5.23-5.28">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs text-sub mb-1 font-medium">내용 *</label>
+                  <input type="text" id="achContent" class="input-field" placeholder="업적 내용">
+                </div>
+                <div>
+                  <label class="block text-xs text-sub mb-1 font-medium">카테고리</label>
+                  <select id="achCat" class="input-field">
+                    <option value="">-- 선택 --</option>
+                  </select>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="saveAchievement()" class="flex-1 py-2 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent2 transition-colors">저장</button>
+                  <button onclick="resetAchForm()" class="flex-1 py-2 rounded-xl border border-sub/30 text-sub text-sm hover:bg-gray-50 transition-colors">초기화</button>
+                  <button id="achDeleteBtn" onclick="deleteAchievement()" class="hidden py-2 px-4 rounded-xl border border-red-200 text-red-400 text-sm hover:bg-red-50 transition-colors">삭제</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 카테고리 관리 -->
+            <div class="bg-white rounded-2xl border border-point/20 p-6">
+              <h2 class="text-base font-bold text-txt mb-4">카테고리 관리</h2>
+              <div class="space-y-3 mb-4">
+                <div>
+                  <label class="block text-xs text-sub mb-1 font-medium">카테고리 이름</label>
+                  <input type="text" id="catName" class="input-field" placeholder="예: 노래대회">
+                </div>
+                <div>
+                  <label class="block text-xs text-sub mb-1 font-medium">색상</label>
+                  <div class="flex gap-2 flex-wrap" id="catColorPicker">
+                    <div class="color-option selected" style="background:#E6B84A" data-color="#E6B84A" onclick="selectCatColor(this)"></div>
+                    <div class="color-option" style="background:#FF5C8A" data-color="#FF5C8A" onclick="selectCatColor(this)"></div>
+                    <div class="color-option" style="background:#9F7AEA" data-color="#9F7AEA" onclick="selectCatColor(this)"></div>
+                    <div class="color-option" style="background:#3BAD7A" data-color="#3BAD7A" onclick="selectCatColor(this)"></div>
+                    <div class="color-option" style="background:#4299E1" data-color="#4299E1" onclick="selectCatColor(this)"></div>
+                    <div class="color-option" style="background:#ED8936" data-color="#ED8936" onclick="selectCatColor(this)"></div>
+                    <div class="color-option" style="background:#6B6B6B" data-color="#6B6B6B" onclick="selectCatColor(this)"></div>
+                    <div class="color-option" style="background:#F56565" data-color="#F56565" onclick="selectCatColor(this)"></div>
+                  </div>
+                </div>
+                <button onclick="addCategory()" class="w-full py-2 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent2 transition-colors">➕ 카테고리 추가</button>
+              </div>
+              <div id="catList" class="space-y-2"></div>
+            </div>
+          </div>
+
+          <!-- 업적 목록 -->
+          <div class="lg:col-span-3">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-bold text-txt">등록된 업적</h2>
+              <div class="flex gap-2">
+                <select id="achFilterYear" class="input-field" style="width:auto;padding:6px 12px;font-size:.8125rem" onchange="loadAchievements()">
+                  <option value="all">전체</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+                <select id="achFilterCat" class="input-field" style="width:auto;padding:6px 12px;font-size:.8125rem" onchange="renderAchList()">
+                  <option value="all">전체 카테고리</option>
+                </select>
+              </div>
+            </div>
+            <div id="achList" class="space-y-2"></div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -341,6 +433,7 @@
         document.getElementById('schDate').value = n.toISOString().split('T')[0];
         loadScheduleAdmin();
         loadVodAdmin();
+        loadAchievements();
       }
     }
 
@@ -510,6 +603,133 @@
       document.getElementById('schDeleteBtn').classList.add('hidden');
       selectedSchColor='#E6B84A';
       document.querySelectorAll('.color-option').forEach(o=>o.classList.toggle('selected',o.dataset.color==='#E6B84A'));
+    }
+
+
+    // ── ACHIEVEMENT ADMIN ──
+    let achData = [];
+    let achCats = [];
+    let selectedCatColor = '#E6B84A';
+
+    function selectCatColor(el) {
+      document.querySelectorAll('#catColorPicker .color-option').forEach(o=>o.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedCatColor = el.dataset.color;
+    }
+
+    async function loadAchievements() {
+      const yr = document.getElementById('achFilterYear').value;
+      let q = sb.from('achievements').select('*, achievement_categories(name,color)').order('year').order('sort_order').order('date_label');
+      if (yr !== 'all') q = q.eq('year', parseInt(yr));
+      const { data: cats } = await sb.from('achievement_categories').select('*').order('sort_order');
+      achCats = cats || [];
+      renderCatList();
+      renderCatSelects();
+      const { data } = await q;
+      achData = data || [];
+      renderAchList();
+    }
+
+    function renderCatList() {
+      const el = document.getElementById('catList');
+      if (!achCats.length) { el.innerHTML = '<p class="text-xs text-sub text-center py-2">카테고리 없음</p>'; return; }
+      el.innerHTML = achCats.map(cat => `
+        <div class="flex items-center gap-2 p-2 rounded-lg border border-point/10">
+          <div class="w-4 h-4 rounded" style="background:${cat.color}"></div>
+          <span class="flex-1 text-sm">${cat.name}</span>
+          <button onclick="deleteCat('${cat.id}')" class="text-xs text-red-400 hover:text-red-600">삭제</button>
+        </div>`).join('');
+    }
+
+    function renderCatSelects() {
+      ['achCat','achFilterCat'].forEach(id => {
+        const el = document.getElementById(id);
+        const cur = el.value;
+        const opts = id === 'achFilterCat' ? '<option value="all">전체 카테고리</option>' : '<option value="">-- 선택 --</option>';
+        el.innerHTML = opts + achCats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        el.value = cur;
+      });
+    }
+
+    function renderAchList() {
+      const catF = document.getElementById('achFilterCat').value;
+      const list = catF === 'all' ? achData : achData.filter(a => a.category_id === catF);
+      const el = document.getElementById('achList');
+      if (!list.length) { el.innerHTML = '<p class="text-center py-8 text-sub text-sm">등록된 업적이 없습니다</p>'; return; }
+      el.innerHTML = list.map(a => {
+        const cat = a.achievement_categories;
+        const color = cat?.color || '#E6B84A';
+        return `<div class="flex items-center gap-2 p-3 bg-white rounded-xl border border-point/10 hover:border-accent/30 transition-colors">
+          <div class="w-3 h-3 rounded flex-shrink-0" style="background:${color}"></div>
+          <div class="text-xs text-sub w-14 flex-shrink-0">${a.year} ${a.date_label||''}</div>
+          <div class="flex-1 text-sm truncate">${a.content}</div>
+          <button onclick="editAchievement('${a.id}')" class="text-xs px-2 py-1 rounded-lg bg-thead text-accent hover:bg-point flex-shrink-0">수정</button>
+        </div>`;
+      }).join('');
+    }
+
+    async function saveAchievement() {
+      const editId = document.getElementById('achEditId').value;
+      const content = document.getElementById('achContent').value.trim();
+      const year = parseInt(document.getElementById('achYear').value);
+      const date_label = document.getElementById('achDate').value.trim();
+      if (!content || !year) { showToast('내용과 연도는 필수입니다','error'); return; }
+      const p = { content, year, date_label, category_id: document.getElementById('achCat').value || null };
+      const { error } = editId
+        ? await sb.from('achievements').update(p).eq('id', editId)
+        : await sb.from('achievements').insert(p);
+      if (error) { showToast('오류: '+error.message,'error'); return; }
+      showToast(editId?'수정 완료':'추가 완료','success');
+      resetAchForm();
+      loadAchievements();
+    }
+
+    function editAchievement(id) {
+      const a = achData.find(x=>x.id===id);
+      if (!a) return;
+      document.getElementById('achEditId').value = a.id;
+      document.getElementById('achYear').value = a.year;
+      document.getElementById('achDate').value = a.date_label||'';
+      document.getElementById('achContent').value = a.content;
+      document.getElementById('achCat').value = a.category_id||'';
+      document.getElementById('achFormTitle').textContent = '업적 수정';
+      document.getElementById('achDeleteBtn').classList.remove('hidden');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function deleteAchievement() {
+      const id = document.getElementById('achEditId').value;
+      if (!id || !confirm('삭제할까요?')) return;
+      await sb.from('achievements').delete().eq('id', id);
+      showToast('삭제 완료','success');
+      resetAchForm();
+      loadAchievements();
+    }
+
+    function resetAchForm() {
+      document.getElementById('achEditId').value='';
+      document.getElementById('achContent').value='';
+      document.getElementById('achDate').value='';
+      document.getElementById('achCat').value='';
+      document.getElementById('achFormTitle').textContent='업적 추가';
+      document.getElementById('achDeleteBtn').classList.add('hidden');
+    }
+
+    async function addCategory() {
+      const name = document.getElementById('catName').value.trim();
+      if (!name) { showToast('카테고리 이름을 입력해주세요','error'); return; }
+      const { error } = await sb.from('achievement_categories').insert({ name, color: selectedCatColor, sort_order: achCats.length });
+      if (error) { showToast('오류: '+error.message,'error'); return; }
+      document.getElementById('catName').value='';
+      showToast('카테고리 추가 완료','success');
+      loadAchievements();
+    }
+
+    async function deleteCat(id) {
+      if (!confirm('카테고리를 삭제할까요? 해당 카테고리의 업적은 미분류 처리됩니다.')) return;
+      await sb.from('achievement_categories').delete().eq('id', id);
+      showToast('삭제 완료','success');
+      loadAchievements();
     }
 
     function showToast(msg,type='success') {
