@@ -112,44 +112,33 @@
                 class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
             </div>
             <div>
-              <label class="block text-sm text-txt mb-1">상태</label>
-              <select id="schStatus"
-                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
-                <option value="normal">🟢 일반 방송</option>
-                <option value="special">🟣 이벤트</option>
-                <option value="holiday">⚫ 휴방</option>
-                <option value="anniversary">🟠 기념일</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm text-txt mb-1">1부 제목</label>
-              <input type="text" id="schSlot1Title" placeholder="예: 스팀 게임방송"
-                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
-            </div>
-            <div>
-              <label class="block text-sm text-txt mb-1">1부 시간</label>
-              <input type="time" id="schSlot1Time" value="22:00"
-                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm text-txt mb-1">2부 제목 <span class="text-sub text-xs">(선택)</span></label>
-              <input type="text" id="schSlot2Title" placeholder="예: 노래방송"
-                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
-            </div>
-            <div>
-              <label class="block text-sm text-txt mb-1">2부 시간</label>
-              <input type="time" id="schSlot2Time"
+              <label class="block text-sm text-txt mb-1">시간</label>
+              <input type="time" id="schTime"
                 class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
             </div>
           </div>
           <div class="mb-4">
-            <label class="block text-sm text-txt mb-1">메모</label>
-            <input type="text" id="schNote" placeholder="간단한 메모"
+            <label class="block text-sm text-txt mb-1">제목 <span class="text-red-400">*</span></label>
+            <input type="text" id="schTitle" placeholder="예: 노래방송, 게임방송, 특별 이벤트"
               class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm text-txt mb-1">설명</label>
+            <input type="text" id="schDesc" placeholder="간단한 설명"
+              class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm text-txt mb-1">태그 <span class="text-sub text-xs">(쉼표로 구분)</span></label>
+              <input type="text" id="schTags" placeholder="예: 노래, 게임, 합방"
+                class="w-full px-4 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none focus:ring-2 focus:ring-accent/30 text-sm">
+            </div>
+            <div class="flex items-end pb-1">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="schSpecial" class="w-4 h-4 rounded accent-accent">
+                <span class="text-sm text-txt">🟣 이벤트 표시</span>
+              </label>
+            </div>
           </div>
           <button onclick="handleAddSchedule()"
             class="px-6 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent2 transition-colors">
@@ -159,20 +148,11 @@
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-point/20 p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="font-semibold text-txt">📋 등록된 일정</h2>
-            <div class="flex gap-2">
-              <button onclick="changeSchMonth(-1)" class="w-8 h-8 rounded-full border border-point/40 flex items-center justify-center text-accent text-sm hover:bg-thead transition">‹</button>
-              <span id="schMonthLabel" class="text-sm font-semibold text-txt self-center min-w-[80px] text-center"></span>
-              <button onclick="changeSchMonth(1)" class="w-8 h-8 rounded-full border border-point/40 flex items-center justify-center text-accent text-sm hover:bg-thead transition">›</button>
-            </div>
-          </div>
+          <h2 class="font-semibold text-txt mb-4">📋 등록된 일정</h2>
           <div class="overflow-x-auto">
             <table class="sch-table">
               <thead>
-                <tr>
-                  <th>날짜</th><th>상태</th><th>1부</th><th>2부</th><th>메모</th><th>관리</th>
-                </tr>
+                <tr><th>날짜</th><th>시간</th><th>제목</th><th>설명</th><th>태그</th><th>관리</th></tr>
               </thead>
               <tbody id="scheduleTableBody">
                 <tr><td colspan="6" class="text-center py-8 text-sub text-sm">불러오는 중...</td></tr>
@@ -240,7 +220,7 @@
   </div>
 
   <!-- 일정 수정 모달 -->
-  <div id="editSchModal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center px-4">
+  <div id="scheduleEditModal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center px-4">
     <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md border border-point/20">
       <h3 class="font-semibold text-txt mb-4">✏️ 일정 수정</h3>
       <div class="space-y-3">
@@ -252,49 +232,34 @@
               class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
           </div>
           <div>
-            <label class="block text-sm text-txt mb-1">상태</label>
-            <select id="editSchStatus"
-              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
-              <option value="normal">🟢 일반</option>
-              <option value="special">🟣 이벤트</option>
-              <option value="holiday">⚫ 휴방</option>
-              <option value="anniversary">🟠 기념일</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm text-txt mb-1">1부 제목</label>
-            <input type="text" id="editSlot1Title"
-              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
-          </div>
-          <div>
-            <label class="block text-sm text-txt mb-1">1부 시간</label>
-            <input type="time" id="editSlot1Time"
-              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm text-txt mb-1">2부 제목</label>
-            <input type="text" id="editSlot2Title"
-              class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
-          </div>
-          <div>
-            <label class="block text-sm text-txt mb-1">2부 시간</label>
-            <input type="time" id="editSlot2Time"
+            <label class="block text-sm text-txt mb-1">시간</label>
+            <input type="time" id="editSchTime"
               class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
           </div>
         </div>
         <div>
-          <label class="block text-sm text-txt mb-1">메모</label>
-          <input type="text" id="editSchNote"
+          <label class="block text-sm text-txt mb-1">제목</label>
+          <input type="text" id="editSchTitle"
             class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
         </div>
+        <div>
+          <label class="block text-sm text-txt mb-1">설명</label>
+          <input type="text" id="editSchDesc"
+            class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+        </div>
+        <div>
+          <label class="block text-sm text-txt mb-1">태그 (쉼표로 구분)</label>
+          <input type="text" id="editSchTags"
+            class="w-full px-3 py-2 rounded-xl border border-point/40 bg-bg focus:outline-none text-sm">
+        </div>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="editSchSpecial" class="w-4 h-4 rounded accent-accent">
+          <span class="text-sm text-txt">🟣 이벤트 표시</span>
+        </label>
         <div class="flex gap-2 pt-2">
-          <button onclick="saveEditSchedule()"
+          <button onclick="handleEditSchedule()"
             class="flex-1 py-2 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent2 transition-colors">저장</button>
-          <button onclick="closeEditSchModal()"
+          <button onclick="closeScheduleEditModal()"
             class="flex-1 py-2 rounded-xl border border-sub/30 text-sub text-sm hover:bg-gray-50 transition-colors">취소</button>
         </div>
       </div>
@@ -381,105 +346,111 @@
     });
 
     // ── SCHEDULE ADMIN ──
-    const STATUS_LABEL = { normal:'🟢 일반', special:'🟣 이벤트', holiday:'⚫ 휴방', anniversary:'🟠 기념일' };
-
-    function updateSchMonthLabel() {
-      document.getElementById('schMonthLabel').textContent = `${schYear}년 ${schMonth+1}월`;
-    }
-
-    function changeSchMonth(d) {
-      schMonth += d;
-      if (schMonth < 0) { schMonth = 11; schYear--; }
-      if (schMonth > 11) { schMonth = 0; schYear++; }
-      loadScheduleAdmin();
-    }
+    let allEvents = [];
 
     async function loadScheduleAdmin() {
-      updateSchMonthLabel();
-      const s = `${schYear}-${String(schMonth+1).padStart(2,'0')}-01`;
-      const last = new Date(schYear, schMonth+1, 0).getDate();
-      const e = `${schYear}-${String(schMonth+1).padStart(2,'0')}-${String(last).padStart(2,'0')}`;
-      const { data, error } = await sb.from('schedules').select('*').gte('date', s).lte('date', e).order('date');
+      const { data, error } = await sb.from('schedule_events').select('*')
+        .order('date', { ascending: false }).order('time', { ascending: true });
+      if (error) { console.error(error); return; }
+      allEvents = data || [];
+      renderScheduleTable();
+    }
+
+    function renderScheduleTable() {
       const tbody = document.getElementById('scheduleTableBody');
-      if (error || !data.length) {
+      if (!allEvents.length) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-sub text-sm">등록된 일정이 없습니다</td></tr>';
         return;
       }
-      tbody.innerHTML = data.map(r => `
-        <tr>
-          <td class="font-medium">${r.date}</td>
-          <td>${STATUS_LABEL[r.status] || r.status}</td>
-          <td>${r.slot1_title ? `${r.slot1_title} <span class="text-sub text-xs">${r.slot1_time||''}</span>` : '<span class="text-sub">-</span>'}</td>
-          <td>${r.slot2_title ? `${r.slot2_title} <span class="text-sub text-xs">${r.slot2_time||''}</span>` : '<span class="text-sub">-</span>'}</td>
-          <td class="text-sub">${r.note || '-'}</td>
-          <td>
-            <div class="flex gap-2">
-              <button onclick="openEditSchModal('${r.id}')" class="text-xs px-3 py-1 rounded-lg bg-thead text-accent hover:bg-point transition-colors">수정</button>
-              <button onclick="deleteSchedule('${r.id}')" class="text-xs px-3 py-1 rounded-lg text-red-400 hover:bg-red-50 border border-red-100 transition-colors">삭제</button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
+      const today = new Date().toISOString().slice(0,10);
+      tbody.innerHTML = allEvents.map(ev => {
+        const isPast = ev.date < today;
+        const tags = (ev.tags || []).join(', ');
+        const specialBadge = ev.is_special ? '<span class="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded ml-1">이벤트</span>' : '';
+        const hiddenBadge = ev.is_hidden ? '<span class="text-xs bg-gray-200 text-sub px-1.5 py-0.5 rounded ml-1">숨김</span>' : '';
+        return `
+          <tr class="border-b border-point/10 ${isPast?'opacity-50':''}">
+            <td class="py-3 px-3 text-sm font-medium">${ev.date}</td>
+            <td class="py-3 px-3 text-sm text-sub">${ev.time||'—'}</td>
+            <td class="py-3 px-3 text-sm">${ev.title}${specialBadge}${hiddenBadge}</td>
+            <td class="py-3 px-3 text-xs text-sub max-w-[120px] truncate">${ev.description||''}</td>
+            <td class="py-3 px-3 text-xs text-sub">${tags}</td>
+            <td class="py-3 px-3">
+              <div class="flex gap-1">
+                <button onclick="openScheduleEdit('${ev.id}')" class="text-xs px-2 py-1 rounded-lg bg-thead text-accent hover:bg-point transition-colors">수정</button>
+                <button onclick="toggleHidden('${ev.id}',${!ev.is_hidden})" class="text-xs px-2 py-1 rounded-lg border border-sub/20 text-sub hover:bg-gray-50 transition-colors">${ev.is_hidden?'👁':'🙈'}</button>
+                <button onclick="deleteScheduleEvent('${ev.id}')" class="text-xs px-2 py-1 rounded-lg text-red-400 hover:bg-red-50 border border-red-100 transition-colors">삭제</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
     }
 
     async function handleAddSchedule() {
       const date = document.getElementById('schDate').value;
-      if (!date) { showMsg('schMsg', '날짜를 입력해주세요', 'error'); return; }
-      const payload = {
+      const title = document.getElementById('schTitle').value.trim();
+      if (!date || !title) { showMsg('schMsg','날짜와 제목은 필수입니다','error'); return; }
+      const tagsRaw = document.getElementById('schTags').value.trim();
+      const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
+      const { error } = await sb.from('schedule_events').insert({
         date,
-        status: document.getElementById('schStatus').value,
-        slot1_title: document.getElementById('schSlot1Title').value.trim() || null,
-        slot1_time:  document.getElementById('schSlot1Time').value || null,
-        slot2_title: document.getElementById('schSlot2Title').value.trim() || null,
-        slot2_time:  document.getElementById('schSlot2Time').value || null,
-        note:        document.getElementById('schNote').value.trim() || null,
-      };
-      const { error } = await sb.from('schedules').upsert(payload, { onConflict: 'date' });
-      if (error) { showMsg('schMsg', '오류: ' + error.message, 'error'); return; }
-      showMsg('schMsg', '✅ 저장됐어요', 'ok');
-      ['schSlot1Title','schSlot2Title','schNote'].forEach(id => document.getElementById(id).value = '');
+        time: document.getElementById('schTime').value || null,
+        title,
+        description: document.getElementById('schDesc').value.trim() || null,
+        tags,
+        is_special: document.getElementById('schSpecial').checked
+      });
+      if (error) { showMsg('schMsg','오류: '+error.message,'error'); return; }
+      showMsg('schMsg','✅ 추가됐어요','ok');
+      ['schDate','schTime','schTitle','schDesc','schTags'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('schSpecial').checked = false;
       loadScheduleAdmin();
     }
 
-    async function deleteSchedule(id) {
-      if (!confirm('삭제할까요?')) return;
-      await sb.from('schedules').delete().eq('id', id);
-      loadScheduleAdmin();
+    function openScheduleEdit(id) {
+      const ev = allEvents.find(e=>e.id===id);
+      if (!ev) return;
+      document.getElementById('editSchId').value = ev.id;
+      document.getElementById('editSchDate').value = ev.date;
+      document.getElementById('editSchTime').value = ev.time||'';
+      document.getElementById('editSchTitle').value = ev.title;
+      document.getElementById('editSchDesc').value = ev.description||'';
+      document.getElementById('editSchTags').value = (ev.tags||[]).join(', ');
+      document.getElementById('editSchSpecial').checked = ev.is_special||false;
+      document.getElementById('scheduleEditModal').classList.remove('hidden');
     }
 
-    let editSchData = {};
-    async function openEditSchModal(id) {
-      const { data } = await sb.from('schedules').select('*').eq('id', id).single();
-      editSchData = data;
-      document.getElementById('editSchId').value        = data.id;
-      document.getElementById('editSchDate').value      = data.date;
-      document.getElementById('editSchStatus').value    = data.status;
-      document.getElementById('editSlot1Title').value   = data.slot1_title || '';
-      document.getElementById('editSlot1Time').value    = data.slot1_time || '';
-      document.getElementById('editSlot2Title').value   = data.slot2_title || '';
-      document.getElementById('editSlot2Time').value    = data.slot2_time || '';
-      document.getElementById('editSchNote').value      = data.note || '';
-      document.getElementById('editSchModal').classList.remove('hidden');
+    function closeScheduleEditModal() {
+      document.getElementById('scheduleEditModal').classList.add('hidden');
     }
 
-    async function saveEditSchedule() {
+    async function handleEditSchedule() {
       const id = document.getElementById('editSchId').value;
-      const payload = {
-        date:        document.getElementById('editSchDate').value,
-        status:      document.getElementById('editSchStatus').value,
-        slot1_title: document.getElementById('editSlot1Title').value.trim() || null,
-        slot1_time:  document.getElementById('editSlot1Time').value || null,
-        slot2_title: document.getElementById('editSlot2Title').value.trim() || null,
-        slot2_time:  document.getElementById('editSlot2Time').value || null,
-        note:        document.getElementById('editSchNote').value.trim() || null,
-      };
-      await sb.from('schedules').update(payload).eq('id', id);
-      closeEditSchModal();
+      const tagsRaw = document.getElementById('editSchTags').value.trim();
+      const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
+      const { error } = await sb.from('schedule_events').update({
+        date: document.getElementById('editSchDate').value,
+        time: document.getElementById('editSchTime').value||null,
+        title: document.getElementById('editSchTitle').value.trim(),
+        description: document.getElementById('editSchDesc').value.trim()||null,
+        tags,
+        is_special: document.getElementById('editSchSpecial').checked
+      }).eq('id', id);
+      if (error) { alert('오류: '+error.message); return; }
+      closeScheduleEditModal();
       loadScheduleAdmin();
     }
 
-    function closeEditSchModal() {
-      document.getElementById('editSchModal').classList.add('hidden');
+    async function toggleHidden(id, hidden) {
+      await sb.from('schedule_events').update({ is_hidden: hidden }).eq('id', id);
+      loadScheduleAdmin();
+    }
+
+    async function deleteScheduleEvent(id) {
+      const ev = allEvents.find(e=>e.id===id);
+      if (!confirm(`"${ev?.title}" 삭제할까요?`)) return;
+      await sb.from('schedule_events').delete().eq('id', id);
+      loadScheduleAdmin();
     }
 
     // ── VOD ADMIN ──

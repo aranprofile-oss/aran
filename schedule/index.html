@@ -226,22 +226,12 @@
       try {
         const sb = initSupabase();
         const { data, error } = await sb
-          .from('schedules').select('*')
+          .from('schedule_events').select('*')
           .gte('date', s).lte('date', e)
-          .order('date');
+          .eq('is_hidden', false)
+          .order('date').order('time');
         if (error) throw error;
-        // slot → events 변환
-        const evs = [];
-        for (const row of (data || [])) {
-          if (row.status === 'holiday') {
-            evs.push({ id: row.id+'_h', date: row.date, title: '휴방 🌙', time: null, is_special: false, tags: ['휴방'] });
-          } else {
-            if (row.slot1_title) evs.push({ id: row.id+'_1', date: row.date, title: row.slot1_title, time: row.slot1_time, is_special: row.status==='special'||row.status==='anniversary', tags: row.status==='special'?['이벤트']:row.status==='anniversary'?['기념일']:[] });
-            if (row.slot2_title) evs.push({ id: row.id+'_2', date: row.date, title: row.slot2_title, time: row.slot2_time, is_special: false, tags: [] });
-            if (row.note) evs.push({ id: row.id+'_n', date: row.date, title: row.note, time: null, is_special: false, tags: ['기타'] });
-          }
-        }
-        schedules = evs;
+        schedules = data || [];
       } catch(err) { console.error(err); schedules = []; }
       renderCalendar();
       renderListView();
