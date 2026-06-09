@@ -48,7 +48,7 @@
     .adm-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
     .adm-cal-header{text-align:center;font-size:.75rem;font-weight:600;color:#7a6a5a;padding:6px 0}
     .adm-cal-header:first-child{color:#c49a72}
-    .adm-cal-cell{min-height:70px;background:white;border-radius:10px;border:.5px solid rgba(155,116,90,.12);padding:5px 6px;transition:all .2s;cursor:default;overflow:hidden;min-width:0}
+    .adm-cal-cell{min-height:70px;background:white;border-radius:10px;border:.5px solid rgba(155,116,90,.12);padding:5px 6px;transition:all .2s;cursor:pointer;overflow:hidden;min-width:0}
     .adm-cal-cell:hover{border-color:#c49a72;box-shadow:0 2px 8px rgba(155,116,90,.1)}
     .adm-cal-cell.empty{background:transparent;border-color:transparent}
     .adm-cal-cell.today{border-color:#c49a72;box-shadow:0 0 0 1px #c49a72}
@@ -408,8 +408,14 @@
           return `<div class="adm-cal-ev${hlCls}" style="background:${col}" onclick="editSchedule('${ev.id}')" title="${ev.title}">${t}${ev.title}</div>`;
         }).join('');
         let cls='adm-cal-cell'+(isToday?' today':'')+(isPast?' past':'');
-        body.innerHTML += `<div class="${cls}"><div class="adm-cal-day">${d}</div>${evH}</div>`;
+        body.innerHTML += `<div class="${cls}" onclick="selectAdminDate('${ds}')"><div class="adm-cal-day">${d}</div>${evH}</div>`;
       }
+    }
+
+    function selectAdminDate(ds) {
+      document.getElementById('schDate').value = ds;
+      document.getElementById('schTitle').focus();
+      window.scrollTo({top:0,behavior:'smooth'});
     }
 
     function changeAdminMonth(d) {
