@@ -9,31 +9,29 @@ export async function onRequestGet({ request }) {
   const vodId = url.searchParams.get("vod_id");
 
   try {
-    const apiUrl = `https://vod.sooplive.com/station/aranroh/vod/clip?page=1`;
+    const apiUrl = `https://api-channel.sooplive.com/v1.1/channel/aranroh/vod/clip?orderBy=regDate&perPage=60&page=1&field=title,contents,userNick,userId`;
     const res = await fetch(apiUrl, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Referer": "https://www.sooplive.com/",
-        "Origin": "https://www.sooplive.com"
+        "Referer": "https://vod.sooplive.com/",
+        "Origin": "https://vod.sooplive.com"
       }
     });
     const json = await res.json();
 
     if (vodId) {
-      // 특정 VOD ID의 thumb만 반환
-      const list = json.data || json.list || json.vods || json.clips || [];
+      const list = json.data || json.list || json.vods || [];
       const found = list.find(v => String(v.titleNo) === String(vodId));
       if (found?.ucc?.thumb) {
         return new Response(JSON.stringify({ thumb: found.ucc.thumb }), {
           headers: { ...CORS, "Content-Type": "application/json" }
         });
       }
-      return new Response(JSON.stringify({ thumb: null }), {
+      return new Response(JSON.stringify({ thumb: null, raw: json }), {
         headers: { ...CORS, "Content-Type": "application/json" }
       });
     }
 
-    // 전체 반환 (디버그용)
     return new Response(JSON.stringify(json), {
       headers: { ...CORS, "Content-Type": "application/json" }
     });
