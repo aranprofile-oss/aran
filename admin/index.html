@@ -518,7 +518,7 @@
       // thumb 자동 fetch
       _lastThumbUrl = '';
       try {
-        const res = await fetch(`https://api-channel.sooplive.com/v1.1/channel/aranroh/vod/clip?orderBy=regDate&perPage=60&page=1`);
+        const res = await fetch(`/api/soop-thumb`);
         const json = await res.json();
         const list = json.data || json.list || json.vods || [];
         const found = list.find(v => String(v.titleNo) === String(id) || String(v.stationNo) === String(id));
