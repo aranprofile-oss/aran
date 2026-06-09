@@ -193,14 +193,16 @@
     let currentYear, currentMonth;
     let schedules = [];
     const DAYS = ['일','월','화','수','목','금','토'];
-    const TYPE_COLORS = { broadcast:'#c49a72', special:'#9b745a', rest:'#BFC4D6', collab:'#48BB78', other:'#ED8936' };
+    const TYPE_COLORS = { broadcast:'#c49a72', rest:'#8C8C8C', special:'#9F7AEA', collab:'#48BB78', anniversary:'#ED8936', other:'#4299E1' };
     const TYPE_LABELS = { broadcast:'방송', special:'이벤트', rest:'휴방', collab:'합방', other:'기타' };
 
     function getEventColor(ev) {
-      if (ev.is_special) return TYPE_COLORS.special;
+      if (ev.color) return ev.color;
       const tag = (ev.tags || [])[0] || '';
-      if (tag === '휴방' || ev.title.includes('휴방')) return TYPE_COLORS.rest;
+      if (tag === '휴방') return TYPE_COLORS.rest;
       if (tag === '합방') return TYPE_COLORS.collab;
+      if (tag === '이벤트') return TYPE_COLORS.special;
+      if (tag === '기념일') return TYPE_COLORS.anniversary;
       if (tag === '기타') return TYPE_COLORS.other;
       return TYPE_COLORS.broadcast;
     }
@@ -236,6 +238,7 @@
           time: ev.event_time,
           title: ev.title,
           description: ev.description,
+          color: ev.color || null,
           is_special: ev.event_type==='special'||ev.event_type==='anniversary',
           tags: ev.event_type==='rest'?['휴방']:ev.event_type==='collab'?['합방']:ev.event_type==='special'?['이벤트']:ev.event_type==='anniversary'?['기념일']:[]
         }));
