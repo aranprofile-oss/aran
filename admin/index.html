@@ -29,6 +29,11 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .vod-table { width: 100%; border-collapse: collapse; }
+    .vod-drag-row { cursor: grab; transition: background .15s; }
+    .vod-drag-row:active { cursor: grabbing; }
+    .vod-drag-row.dragging { opacity: .4; background: #FFF0C0; }
+    .vod-drag-row.drag-over { border-top: 2px solid #c49a72; }
+    .drag-handle { color: #bbb; font-size: 14px; cursor: grab; padding: 0 4px; user-select: none; }
     .vod-table th { background: #FFF0C0; color: #1a1410; font-size: 0.75rem; font-weight: 600; padding: 10px 12px; text-align: left; }
     .vod-table th:first-child { border-radius: 10px 0 0 10px; }
     .vod-table th:last-child { border-radius: 0 10px 10px 0; }
@@ -514,16 +519,24 @@
     }
 
     // ── VOD ADMIN ──
+    let vodList = [];
+    let dragSrcRow = null;
+
     async function loadVodAdmin() {
       const { data } = await sb.from('vod_clips').select('*').order('sort_order').order('created_at');
+      vodList = data || [];
+      renderVodTable();
+    }
+
+    function renderVodTable() {
       const tbody = document.getElementById('vodTableBody');
-      if (!data || !data.length) {
+      if (!vodList.length) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-sub text-sm">등록된 영상이 없습니다</td></tr>';
         return;
       }
-      tbody.innerHTML = data.map((v, i) => `
-        <tr>
-          <td class="text-sub">${i+1}</td>
+      tbody.innerHTML = vodList.map((v, i) => `
+        <tr class="vod-drag-row" draggable="true" data-id="${v.id}" data-idx="${i}">
+          <td class="text-sub"><span class="drag-handle">⠿</span>${i+1}</td>
           <td class="font-medium">${v.title}</td>
           <td><code class="bg-thead px-2 py-0.5 rounded text-xs">${v.vod_id}</code></td>
           <td class="text-sub text-xs">${v.created_at ? v.created_at.slice(0,10) : ''}</td>
@@ -535,6 +548,43 @@
           </td>
         </tr>
       `).join('');
+      initVodDrag();
+    }
+
+    function initVodDrag() {
+      const rows = document.querySelectorAll('.vod-drag-row');
+      rows.forEach(row => {
+        row.addEventListener('dragstart', e => {
+          dragSrcRow = row;
+          row.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        row.addEventListener('dragend', () => {
+          row.classList.remove('dragging');
+          document.querySelectorAll('.vod-drag-row').forEach(r => r.classList.remove('drag-over'));
+        });
+        row.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          document.querySelectorAll('.vod-drag-row').forEach(r => r.classList.remove('drag-over'));
+          if (row !== dragSrcRow) row.classList.add('drag-over');
+        });
+        row.addEventListener('drop', async e => {
+          e.preventDefault();
+          if (row === dragSrcRow) return;
+          const srcIdx = parseInt(dragSrcRow.dataset.idx);
+          const dstIdx = parseInt(row.dataset.idx);
+          const newList = [...vodList];
+          const [moved] = newList.splice(srcIdx, 1);
+          newList.splice(dstIdx, 0, moved);
+          vodList = newList;
+          renderVodTable();
+          // Supabase 순서 저장
+          await Promise.all(vodList.map((v, i) =>
+            sb.from('vod_clips').update({ sort_order: i }).eq('id', v.id)
+          ));
+        });
+      });
     }
 
     let _lastThumbUrl = '';
