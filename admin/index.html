@@ -57,7 +57,7 @@
     .adm-cal-cell:nth-child(7n+1) .adm-cal-day{color:#c49a72}
     .adm-cal-ev{font-size:.625rem;padding:2px 5px;border-radius:5px;margin-bottom:2px;color:#fff;font-weight:500;line-height:1.3;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s;width:100%;max-width:100%;display:block;box-sizing:border-box}
     .adm-cal-ev:hover{opacity:.8}
-    .adm-cal-ev.highlight{animation:neon-glow 1.6s ease-in-out infinite;}
+
     .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:12px;font-size:.875rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.15);transform:translateY(100px);opacity:0;transition:all .3s;z-index:200}
     .toast.show{transform:translateY(0);opacity:1}.toast.success{background:#48BB78;color:#fff}.toast.error{background:#EF4444;color:#fff}
   </style>
@@ -403,8 +403,19 @@
         let evH = dayEvs.map(ev=>{
           const col = ev.color||TYPE_COLORS[ev.event_type]||'#c49a72';
           const t = ev.event_time?ev.event_time.slice(0,2).replace(/^0/,'')+'시 ':'';
-          const hlCls = ev.highlight ? " highlight" : "";
-          return `<div class="adm-cal-ev${hlCls}" style="background:${col}" onclick="editSchedule('${ev.id}')" title="${ev.title}">${t}${ev.title}</div>`;
+          let hlStyle = '';
+          if (ev.highlight) {
+            if (!document.getElementById('aglow-'+ev.id)) {
+              const st = document.createElement('style');
+              st.id = 'aglow-'+ev.id;
+              const hx = col.replace('#','');
+              const r=parseInt(hx.slice(0,2),16),g=parseInt(hx.slice(2,4),16),b=parseInt(hx.slice(4,6),16);
+              st.textContent = `@keyframes aglow-${ev.id}{0%,100%{box-shadow:0 0 4px 1px rgba(${r},${g},${b},.5),0 0 8px 2px rgba(${r},${g},${b},.2)}50%{box-shadow:0 0 10px 4px rgba(${r},${g},${b},.9),0 0 20px 8px rgba(${r},${g},${b},.6)}}`;
+              document.head.appendChild(st);
+            }
+            hlStyle = `animation:aglow-${ev.id} 1.6s ease-in-out infinite;`;
+          }
+          return `<div class="adm-cal-ev" style="background:${col};${hlStyle}" onclick="editSchedule('${ev.id}')" title="${ev.title}">${t}${ev.title}</div>`;
         }).join('');
         let cls='adm-cal-cell'+(isToday?' today':'')+(isPast?' past':'');
         body.innerHTML += `<div class="${cls}" onclick="selectAdminDate('${ds}')"><div class="adm-cal-day">${d}</div>${evH}</div>`;
