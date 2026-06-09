@@ -192,6 +192,7 @@
                 <div class="flex gap-3">
                   <button onclick="saveSchedule()" class="flex-1 py-2.5 rounded-xl bg-accent text-white text-sm font-semibold hover:bg-accent2 transition-colors">저장</button>
                   <button onclick="resetSchForm()" class="flex-1 py-2.5 rounded-xl border border-sub/30 text-sub text-sm hover:bg-gray-50 transition-colors">초기화</button>
+                  <button id="schDeleteBtn" onclick="deleteCurrentSchedule()" class="hidden py-2.5 px-4 rounded-xl border border-red-200 text-red-400 text-sm hover:bg-red-50 transition-colors">삭제</button>
                 </div>
               </div>
             </div>
@@ -453,7 +454,19 @@
       selectedSchColor = ev.color || '#c49a72';
       document.querySelectorAll('.color-option').forEach(o=>o.classList.toggle('selected',o.dataset.color===selectedSchColor));
       document.getElementById('schFormTitle').textContent = '일정 수정';
+      document.getElementById('schDeleteBtn').classList.remove('hidden');
       window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function deleteCurrentSchedule() {
+      const id = document.getElementById('schEditId').value;
+      if (!id) return;
+      const ev = allEvents.find(e=>e.id===id);
+      if (!confirm(`"${ev?.title}" 삭제할까요?`)) return;
+      await sb.from('schedule_events').delete().eq('id', id);
+      showToast('삭제 완료','success');
+      resetSchForm();
+      loadScheduleAdmin();
     }
 
     async function deleteSchedule(id) {
@@ -473,6 +486,7 @@
       document.getElementById('schHighlight').checked=false;
       document.getElementById('schDesc').value='';
       document.getElementById('schFormTitle').textContent='일정 추가';
+      document.getElementById('schDeleteBtn').classList.add('hidden');
       selectedSchColor='#c49a72';
       document.querySelectorAll('.color-option').forEach(o=>o.classList.toggle('selected',o.dataset.color==='#c49a72'));
     }
