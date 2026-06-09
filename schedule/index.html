@@ -59,7 +59,8 @@
     .cal-cell:nth-child(7n) .cal-day-num { color:#7BA0D4; }
     .cal-event { font-size:.6875rem; padding:3px 6px; border-radius:6px; margin-bottom:2px; color:#fff; font-weight:500; line-height:1.35; cursor:pointer; transition:opacity .2s; width:100%; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; box-sizing:border-box; }
     .cal-event:hover { opacity:.82; }
-    .cal-event.highlight { outline:3px solid rgba(255,255,255,.95); outline-offset:-2px; filter:brightness(1.35) saturate(1.3); box-shadow:0 0 8px 2px rgba(255,255,255,.4); }
+    .cal-event.highlight { outline:2px solid rgba(255,255,255,.6); outline-offset:-1px; box-shadow:0 0 0 2px rgba(255,255,255,.9), 0 0 10px 3px rgba(255,255,255,.6); animation:shimmer 2s ease-in-out infinite; }
+    @keyframes shimmer { 0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 8px 2px rgba(255,255,255,.5)} 50%{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 14px 5px rgba(255,255,255,.8)} }
 
     /* 리스트 뷰 */
     .list-date-group { margin-bottom:14px; }
