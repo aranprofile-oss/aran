@@ -518,12 +518,10 @@
       // thumb 자동 fetch
       _lastThumbUrl = '';
       try {
-        const res = await fetch(`/api/soop-thumb`);
+        const res = await fetch(`/api/soop-thumb?vod_id=${id}`);
         const json = await res.json();
-        const list = json.data || json.list || json.vods || [];
-        const found = list.find(v => String(v.titleNo) === String(id) || String(v.stationNo) === String(id));
-        if (found && found.ucc && found.ucc.thumb) {
-          _lastThumbUrl = found.ucc.thumb;
+        if (json.thumb) {
+          _lastThumbUrl = json.thumb;
           showMsg('vodMsg', '✅ 썸네일 자동 감지됨', 'ok');
         }
       } catch(e) { /* 썸네일 없어도 무방 */ }
