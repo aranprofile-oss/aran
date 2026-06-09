@@ -31,17 +31,14 @@
     .page{max-width:900px;margin:0 auto;padding:48px 24px 80px}
 
     /* HERO */
-    .hero{display:flex;align-items:flex-start;gap:40px;margin-bottom:56px}
+    .hero{display:flex;align-items:center;gap:48px;margin-bottom:56px}
     .avatar-wrap{flex-shrink:0;position:relative}
-    .avatar-ring{width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--gold) 0deg,var(--brown) 120deg,var(--gold-light) 240deg,var(--gold) 360deg);padding:3px;animation:spin 12s linear infinite}
+    .avatar-ring{width:220px;height:220px;border-radius:50%;background:conic-gradient(var(--gold) 0deg,var(--brown) 120deg,var(--gold-light) 240deg,var(--gold) 360deg);padding:3px;animation:spin 12s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .avatar-inner{width:100%;height:100%;border-radius:50%;background:var(--bg);padding:4px;animation:spin 12s linear infinite reverse}
     .avatar-img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;background:var(--gold-light)}
-    .platform-badge{position:absolute;bottom:8px;right:8px;background:var(--soop);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em}
     .hero-info{flex:1;padding-top:8px}
-    .agency-tag{display:inline-block;font-size:11px;font-weight:500;letter-spacing:.12em;color:var(--brown);border:1px solid var(--brown);padding:3px 10px;border-radius:4px;margin-bottom:12px;text-transform:uppercase}
     .name-kr{font-family:'Gowun Batang',serif;font-size:52px;font-weight:700;line-height:1;margin-bottom:4px}
-    .name-en{font-size:13px;letter-spacing:.2em;color:var(--text-muted);margin-bottom:16px;text-transform:uppercase}
     .bio{font-size:15px;line-height:1.7;color:var(--text-muted);max-width:420px;margin-bottom:20px}
     .catchphrase{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--brown-dark);background:var(--gold-light);padding:6px 16px;border-radius:6px;font-style:italic}
 
@@ -94,8 +91,8 @@
     .vod-player{border-radius:16px;overflow:hidden;background:#000;aspect-ratio:16/9;margin-bottom:12px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
     .vod-player iframe{width:100%;height:100%;border:none;display:block}
     .vod-empty{display:flex;align-items:center;justify-content:center;height:200px;background:var(--white);border:1px solid var(--border);border-radius:16px;color:var(--text-muted);font-size:14px;margin-bottom:12px}
-    .vod-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .vod-thumb{position:relative;border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .25s;background:#000;aspect-ratio:16/9}
+    .vod-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+    .vod-thumb{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .25s;background:#000;height:80px}
     .vod-thumb:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(155,116,90,.2)}
     .vod-thumb.active{border-color:var(--gold);box-shadow:0 4px 16px rgba(255,210,108,.4)}
     .vod-thumb-bg{width:100%;height:100%;background:linear-gradient(135deg,var(--gold-pale),var(--gold-light));display:flex;align-items:center;justify-content:center;font-size:24px}
@@ -118,7 +115,7 @@
       .bio{max-width:100%}
       .stats{grid-template-columns:repeat(2,1fr)}
       .details-grid{grid-template-columns:1fr}
-      .vod-list{grid-template-columns:1fr}
+      .vod-thumb{height:64px}
       .nav-tab{padding:10px 14px;font-size:.8125rem}
     }
   </style>
@@ -146,12 +143,9 @@
             onerror="this.style.background='linear-gradient(135deg,#ffd26c,#9b745a)'">
         </div>
       </div>
-      <div class="platform-badge">SOOP</div>
     </div>
     <div class="hero-info">
-      <div class="agency-tag">유니버스</div>
       <div class="name-kr">노아란</div>
-      <div class="name-en">aranroh · Universe</div>
       <div class="bio">노래하고 게임하는 119살 바위너구리</div>
       <div class="catchphrase">💛 &nbsp;돌아버려</div>
     </div>
@@ -199,8 +193,12 @@
   <div class="sec-title fade-up">좋아하는 것 · 싫어하는 것</div>
   <div class="tags-wrap fade-up">
     <div class="tags">
-      <span class="tag like">💛 노랑색</span><span class="tag like">🐾 동물</span><span class="tag like">🌸 꽃</span><span class="tag like">🧸 귀여운 것</span><span class="tag like">🪨 하찮은 것</span>
-      <span class="tag dislike">🚫 핑크색</span><span class="tag dislike">🦟 곤충</span><span class="tag dislike">👻 무서운 거</span><span class="tag dislike">🫘 팥</span><span class="tag dislike">😤 무례한 것</span>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <span class="tag like">💛 노랑색</span><span class="tag like">🐾 동물</span><span class="tag like">🌸 꽃</span><span class="tag like">🧸 귀여운 것</span><span class="tag like">🪨 하찮은 것</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span class="tag dislike">🚫 핑크색</span><span class="tag dislike">🦟 곤충</span><span class="tag dislike">👻 무서운 거</span><span class="tag dislike">🫘 팥</span><span class="tag dislike">😤 무례한 것</span>
+      </div>
     </div>
   </div>
 
