@@ -36,19 +36,19 @@ CREATE POLICY "auth all vod_clips"     ON public.vod_clips FOR ALL TO authentica
 -- 기존 테이블에 thumb_url 컬럼 추가 (이미 생성된 경우)
 ALTER TABLE public.vod_clips ADD COLUMN IF NOT EXISTS thumb_url TEXT DEFAULT NULL;
 
--- 3. 방송 일정 이벤트 (냔냐 동일 구조)
+-- 3. 방송 일정 이벤트
 CREATE TABLE IF NOT EXISTS public.schedule_events (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  date        DATE NOT NULL,
-  time        TEXT,
+  event_date  DATE NOT NULL,
+  event_time  TEXT,
   title       TEXT NOT NULL,
   description TEXT,
-  tags        TEXT[] DEFAULT '{}',
-  is_special  BOOLEAN DEFAULT FALSE,
-  is_hidden   BOOLEAN DEFAULT FALSE,
+  event_type  TEXT DEFAULT 'broadcast',
+  color       TEXT DEFAULT '#c49a72',
+  highlight   BOOLEAN DEFAULT FALSE,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_schedule_events_date ON public.schedule_events(date);
+CREATE INDEX IF NOT EXISTS idx_schedule_events_date ON public.schedule_events(event_date);
 ALTER TABLE public.schedule_events ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public read events"  ON public.schedule_events FOR SELECT USING (true);
 CREATE POLICY "auth all events"     ON public.schedule_events FOR ALL TO authenticated USING (true) WITH CHECK (true);

@@ -227,11 +227,18 @@
         const sb = initSupabase();
         const { data, error } = await sb
           .from('schedule_events').select('*')
-          .gte('date', s).lte('date', e)
-          .eq('is_hidden', false)
-          .order('date').order('time');
+          .gte('event_date', s).lte('event_date', e)
+          .order('event_date').order('event_time');
         if (error) throw error;
-        schedules = data || [];
+        schedules = (data||[]).map(ev=>({
+          id: ev.id,
+          date: ev.event_date,
+          time: ev.event_time,
+          title: ev.title,
+          description: ev.description,
+          is_special: ev.event_type==='special'||ev.event_type==='anniversary',
+          tags: ev.event_type==='rest'?['휴방']:ev.event_type==='collab'?['합방']:ev.event_type==='special'?['이벤트']:ev.event_type==='anniversary'?['기념일']:[]
+        }));
       } catch(err) { console.error(err); schedules = []; }
       renderCalendar();
       renderListView();
