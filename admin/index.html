@@ -169,13 +169,13 @@
                 <div>
                   <label class="block text-xs text-sub mb-1.5 font-medium">색상</label>
                   <div class="flex gap-2 flex-wrap" id="schColorPicker">
-                    <div class="color-option selected" style="background:#c49a72" data-color="#c49a72" onclick="selectSchColor(this)"></div>
-                    <div class="color-option" style="background:#9b745a" data-color="#9b745a" onclick="selectSchColor(this)"></div>
-                    <div class="color-option" style="background:#8C8C8C" data-color="#8C8C8C" onclick="selectSchColor(this)"></div>
-                    <div class="color-option" style="background:#9F7AEA" data-color="#9F7AEA" onclick="selectSchColor(this)"></div>
-                    <div class="color-option" style="background:#48BB78" data-color="#48BB78" onclick="selectSchColor(this)"></div>
+                    <div class="color-option selected" style="background:#E6B84A" data-color="#E6B84A" onclick="selectSchColor(this)"></div>
+                    <div class="color-option" style="background:#6B6B6B" data-color="#6B6B6B" onclick="selectSchColor(this)"></div>
+                    <div class="color-option" style="background:#FF5C8A" data-color="#FF5C8A" onclick="selectSchColor(this)"></div>
+                    <div class="color-option" style="background:#3BAD7A" data-color="#3BAD7A" onclick="selectSchColor(this)"></div>
                     <div class="color-option" style="background:#ED8936" data-color="#ED8936" onclick="selectSchColor(this)"></div>
                     <div class="color-option" style="background:#4299E1" data-color="#4299E1" onclick="selectSchColor(this)"></div>
+                    <div class="color-option" style="background:#9F7AEA" data-color="#9F7AEA" onclick="selectSchColor(this)"></div>
                     <div class="color-option" style="background:#F56565" data-color="#F56565" onclick="selectSchColor(this)"></div>
                   </div>
                 </div>
@@ -360,7 +360,7 @@
     // ── SCHEDULE ADMIN ──
     let allEvents = [];
     let selectedSchColor = '#c49a72';
-    const TYPE_COLORS = { broadcast:'#c49a72', rest:'#8C8C8C', special:'#9F7AEA', collab:'#48BB78', anniversary:'#ED8936', other:'#4299E1' };
+    const TYPE_COLORS = { broadcast:'#E6B84A', rest:'#6B6B6B', special:'#FF5C8A', collab:'#3BAD7A', anniversary:'#ED8936', other:'#4299E1' };
     const TYPE_LABELS = { broadcast:'방송', rest:'휴방', special:'이벤트', collab:'합방', anniversary:'기념일', other:'기타' };
 
     function selectSchColor(el) {
@@ -487,8 +487,8 @@
       document.getElementById('schDesc').value='';
       document.getElementById('schFormTitle').textContent='일정 추가';
       document.getElementById('schDeleteBtn').classList.add('hidden');
-      selectedSchColor='#c49a72';
-      document.querySelectorAll('.color-option').forEach(o=>o.classList.toggle('selected',o.dataset.color==='#c49a72'));
+      selectedSchColor='#E6B84A';
+      document.querySelectorAll('.color-option').forEach(o=>o.classList.toggle('selected',o.dataset.color==='#E6B84A'));
     }
 
     function showToast(msg,type='success') {
