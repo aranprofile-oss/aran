@@ -24,7 +24,7 @@
       --text:#1a1410; --text-muted:#7a6a5a;
       --border:rgba(155,116,90,.15);
     }
-    html,body{width:100%;min-height:100vh;background:var(--bg);font-family:'Pretendard',sans-serif;font-weight:300;color:var(--text);letter-spacing:-.05em}
+    html,body{width:100%;min-height:100vh;background:var(--bg);font-family:'Pretendard',sans-serif;font-weight:300;color:var(--text)}
     ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
 
     /* NAV */
@@ -67,15 +67,15 @@
     .detail-block h3{font-size:11px;letter-spacing:.1em;color:var(--brown);text-transform:uppercase;margin-bottom:12px;font-weight:500}
     .detail-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(155,116,90,.08)}
     .detail-row:last-child{border-bottom:none}
-    .detail-key{font-size:12px;color:var(--text-muted);letter-spacing:-.05em;font-weight:300}
-    .detail-val{font-size:12px;font-weight:400;text-align:right;max-width:180px;letter-spacing:-.05em}
+    .detail-key{font-size:12px;color:var(--text-muted)}
+    .detail-val{font-size:12px;font-weight:500;text-align:right;max-width:180px}
 
     /* SCHEDULE BOX */
     .schedule-box{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:40px}
     .schedule-days{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
     .day-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;background:var(--gold-pale);color:var(--brown-dark);border:1px solid var(--gold)}
-    .schedule-time{font-size:28px;font-family:'Pretendard',sans-serif;font-weight:300;letter-spacing:-.08em;display:flex;align-items:baseline;gap:8px}
-    .schedule-time span{font-size:14px;color:var(--text-muted);font-family:'Pretendard',sans-serif;font-weight:300;letter-spacing:-.05em}
+    .schedule-time{font-size:28px;font-family:'Gowun Batang',serif;display:flex;align-items:baseline;gap:8px}
+    .schedule-time span{font-size:14px;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;font-weight:300}
 
     /* TAGS */
     .tags-wrap{margin-bottom:40px}
@@ -182,10 +182,8 @@
       <div class="detail-row"><span class="detail-key">플랫폼</span><span class="detail-val">SOOP</span></div>
       <div class="detail-row"><span class="detail-key">소속</span><span class="detail-val">유니버스(MCN) / 땜빵 크루</span></div>
       <div class="detail-row"><span class="detail-key">콘텐츠</span><span class="detail-val">노래 / 종합게임</span></div>
-      <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(155,116,90,.08)">
-        <div style="font-size:11px;color:var(--text-muted);letter-spacing:.04em;margin-bottom:5px">방송목표</div>
-        <div style="font-size:13px;font-weight:300;line-height:1.65;letter-spacing:-.03em;color:var(--text)">돌아지들 다 시집장가가고<br>증손주 볼때까지 한결같은 방송</div>
-      </div>
+      <div class="detail-row" style="padding:8px 0 0"><span class="detail-key" style="font-size:11px">방송목표</span></div>
+      <div style="font-size:13px;font-weight:300;line-height:1.65;color:var(--text);padding-bottom:4px">돌아지들 다 시집장가가고 증손주 볼때까지 한결같은 방송</div>
     </div>
   </div>
 
